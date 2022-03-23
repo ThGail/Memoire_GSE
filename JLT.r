@@ -18,7 +18,7 @@ B_fct <- function(u, param, dj) {
   return((- 2 * dj * (exp(ga * u) - 1)) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))
 }
 
-lambdat_fct2 <- function(N, t, param) {
+pi_fct <- function(N, t, param) {
   k <- param[1]
   mu <- param[2]
   sigma <- param[3]
@@ -29,7 +29,7 @@ lambdat_fct2 <- function(N, t, param) {
   return(lambda_t)
 }
 
-proba_defaut_i <- function(t, TT, param, M, D, i){
+proba_defaut_i <- function(N, t, TT, param, M, D, i){
   k <- param[1]
   mu <- param[2]
   sigma <- param[3]
@@ -40,7 +40,7 @@ proba_defaut_i <- function(t, TT, param, M, D, i){
   
   sum = 0
   for (j in (1:(K-1))){
-    esp <- A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pi(t))
+    esp <- A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pi_fct(N,t,param))
     sum = sum + M[i,j]*invM[i,j]*(esp-1)
   }
   return(sum)
