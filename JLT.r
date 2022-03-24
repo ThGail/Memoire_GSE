@@ -1,6 +1,17 @@
-print("Hello GSE")
-print("Second update")
+puissanceMatrice <- function(A, n){
+  mat = diag(length(A[1,]))
+  for (i in 1:n){mat = mat%*%A}
+  return(mat)
+}
 
+logMatrice <- function(Q, n){
+  QI = Q-diag(length(Q[1,])) # Q-Identite
+  mat = matrix(rep(0,length(Q[1,])^2),nrow=length(Q[1,]))
+  for (i in 1:n){
+    mat = mat + (-1)**(i+1)*puissanceMatrice(QI,i)/i
+  }
+  return(mat)
+}
 
 A_fct <- function(u, param, dj) {
   k <- param[1]
@@ -18,15 +29,18 @@ B_fct <- function(u, param, dj) {
   return((- 2 * dj * (exp(ga * u) - 1)) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))
 }
 
-pi_fct <- function(N, t, param) {
+# On suppose que le mouvement brownien est standard
+pit_fct <- function(N, t, param) {
   k <- param[1]
   mu <- param[2]
   sigma <- param[3]
-  lambda_t <- param[4]
+  pi0 <- param[4]
+  pi_t <- pi0
+  if (t==0) {return(pi_t)}
   for (i in 1:t) {
-    lambda_t <- lambda_t + (1 / N) * k * (mu - lambda_t) + sigma * sqrt(lambda_t * (lambda_t > 0))* rnorm(N, 0, 1)
+    pi_t <- abs(pi_t + k * (mu - pi_t) + sigma * sqrt(pi_t) * rnorm(N, 0, 1))
   }
-  return(lambda_t)
+  return(pi_t)
 }
 
 proba_defaut_i <- function(N, t, TT, param, M, D, i){
@@ -35,13 +49,14 @@ proba_defaut_i <- function(N, t, TT, param, M, D, i){
   sigma <- param[3]
   lambda0 <- param[4]
   
-  invM <- solve(M)
+  invM <- solve(M) # le mettre en param ?
   K <- length(D[1,])
   
   sum = 0
   for (j in (1:(K-1))){
-    esp <- A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pi_fct(N,t,param))
-    sum = sum + M[i,j]*invM[i,j]*(esp-1)
+    esp <- A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pit_fct(N,t,param))
+    sum = sum + M[i,j]*invM[j,K]*(esp-1)
   }
+  
   return(sum)
 }
