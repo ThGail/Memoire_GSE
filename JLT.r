@@ -1,3 +1,15 @@
+# exemple de matrice de transition de rating
+Q = matrix(c(91.05,8.25,0.6,0.07,0.02,0,0,0,0,
+             0.86,89.59,8.96,0.45,0.07,0.04,0.02,0,0.02,
+             0.05,2.58,91.01,5.63,0.51,0.11,0.04,0.01,0.05,
+             0.03,0.15,4.34,90.39,3.99,0.72,0.16,0.02,0.18,
+             0.01,0.04,0.46,6.66,83.16,7.81,0.77,0.12,0.96,
+             0.01,0.03,0.16,0.5,5.35,82.29,7.41,0.58,3.66,
+             0,0.01,0.03,0.1,0.4,7.6,79.24,3.33,9.29,
+             0,0,0.06,0,0.72,2.94,11.48,50.57,34.23,
+             0,0,0,0,0,0,0,0,100)/100,ncol=9,byrow=T)
+ 
+# transformation en matrice log
 puissanceMatrice <- function(A, n){
   mat = diag(length(A[1,]))
   for (i in 1:n){mat = mat%*%A}
@@ -13,6 +25,19 @@ logMatrice <- function(Q, n){
   return(mat)
 }
 
+# transformation pour la positivité hors diag
+Ltemp=logMatrice(Q,5000)
+Ldiag = diag(diag(Ltemp))
+Lpos = pmax(Ltemp,0)
+Lneg = pmin(Ltemp,0)-Ldiag
+L = Lpos + Ldiag + diag(rowSums(Lneg))
+
+# diagonalisation de la matrice L
+M = eigen(L)$vectors
+D = diag(eigen(L)$values)
+M%*%D%*%solve(M)
+
+# formule de la proba de défaut
 A_fct <- function(u, param, dj) {
   k <- param[1]
   mu <- param[2]
