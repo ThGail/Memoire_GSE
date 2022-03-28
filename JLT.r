@@ -8,7 +8,7 @@ Q = matrix(c(91.05,8.25,0.6,0.07,0.02,0,0,0,0,
              0,0.01,0.03,0.1,0.4,7.6,79.24,3.33,9.29,
              0,0,0.06,0,0.72,2.94,11.48,50.57,34.23,
              0,0,0,0,0,0,0,0,100)/100,ncol=9,byrow=T)
- 
+
 # transformation en matrice log
 puissanceMatrice <- function(A, n){
   mat = diag(length(A[1,]))
@@ -27,15 +27,14 @@ logMatrice <- function(Q, n){
 
 # transformation pour la positivité hors diag
 Ltemp=logMatrice(Q,5000)
-Ldiag = diag(diag(Ltemp))
 Lpos = pmax(Ltemp,0)
-Lneg = pmin(Ltemp,0)-Ldiag
-L = Lpos + Ldiag + diag(rowSums(Lneg))
+Lneg = pmin(Ltemp,0)
+L = Lpos + diag(rowSums(Lneg))
 
 # diagonalisation de la matrice L
 M = eigen(L)$vectors
 D = diag(eigen(L)$values)
-M%*%D%*%solve(M)
+# M%*%D%*%solve(M) permet de retrouver la matrice de base (modulo erreur numérique)
 
 # formule de la proba de défaut
 A_fct <- function(u, param, dj) {
