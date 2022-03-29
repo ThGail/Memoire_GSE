@@ -111,6 +111,7 @@ proba_defaut_i <- function(N, t, TT, param, M, D, i){
 param_test <- matrix(c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.3, 0.2, 0.5, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 0.5, 0.5, 0.5, 0.7, 0.5, 0.5, 0.5, 0.8, 0.5, 0.5, 0.5), nrow =8)
 print(param_test)
 
+#temp
 n <- 2
 k_test <- matrix(rep(param_test[,1], n), nrow = 8)
 mu_test <- matrix(rep(param_test[,2], n), nrow = 8)
