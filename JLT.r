@@ -93,16 +93,14 @@ proba_defaut_i <- function(N, t, TT, param, M, D, i){
   invM <- solve(M) # le mettre en param ?
   K <- length(D[1,])
   
-  sum = array(rep(0,8))
+  sum = 0
   
-  #for (j in (1:(K-1))){
-  diago <- diag(D)
-  esp <- rowMeans(A_fct(TT-t, param, diago)*exp(-B_fct(TT-t, param, diago)*pit_fct(N,t,param)))
+  for (j in (1:(K-1))){
+    esp <- rowMeans(A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pit_fct(N,t,param)))[i]
+    sum = sum + M[i,j]*invM[i,j]*(esp-1)
+  }
+  return(sum)
     
-    #sum = sum + M[i,j]*invM[j,K]*(esp-1)
-  #}
-  
-  return(sum(M[i,]*invM[,K]*(esp-1)))
 }
 
 spread_fct <- function(N, t, TT, param, M, D, i){
