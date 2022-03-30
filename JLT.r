@@ -79,11 +79,8 @@ pit_fct <- function(N, t, param) {
   pi_t <- matrix(rep(param_test[,4], N), nrow = 8)
   
   if (t==0) {return(pi_t)}
-  for (i in 1:t)
-  {
+  for (i in 1:t){
     pi_t <- abs(pi_t + k * (mu - pi_t) + t(t(sigma * sqrt(pi_t)) * rnorm(N, 0, 1)))
-    print(i)
-    print(pi_t)
   }
   return(pi_t)
 }
@@ -104,10 +101,17 @@ proba_defaut_i <- function(N, t, TT, param, M, D, i){
 }
 
 spread_fct <- function(N, t, TT, param, M, D, i){
+  if (t==TT){return(0)} # a verifier au temps t==TT
   return(-(1/(TT-t))*log(1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)))
 }
 
-
+# test pour le spread AAA
+# pb : s'arrete à la maturité 25, au delà ne fonctionne pas tjrs
+L <- c()
+for (t in 0:25){
+  L <- c(L,spread_fct(100, 0, t, param_test, M, D, 1,LGD))
+} 
+plot(L)
 
 ######### CALIBRAGE#########
 #On considere param comme une matrice, chaque ligne represente les parametres d une classe de rating
@@ -173,8 +177,21 @@ UB = c(2,5,1,1)
 param <- hjkb(c(0.2,0.2,0.2,0.2),Ecart_CIR,lower=LB,upper=UB)$par
 
 
-
-
+#### fonction objective à minimiser ####
+# à minimiseer sur la maturité (ici 1 an ?) et sur les ratings
+# un seul appel à cette fonction necessaire pour le calibrage 
+# à calibrer K fois les paramètres k mu et pi0
+# et 1 fois le paramètre sigma (car la volatilité est supposé constante)
+Ecart_JLT <- function(param){
+  e <- 0
+  for (t in 0:TT){ for (i in 1:6){
+    # 6 car spreadMarket ne contient que les 6 premiers ratings
+    spread <- spread_fct_i(1000, t, TT, param_test, M, D, i)
+    e <- e + (spread-SpreadMarket)^2
+  }}
+  return(e)
+}
+# encore un pb avec le log
 
 
 
@@ -206,8 +223,6 @@ Ecart_JLT <- function(param){
 
 test <- c(1,2,3,4)
 print(test[1:3])
-
-
 
 
 
