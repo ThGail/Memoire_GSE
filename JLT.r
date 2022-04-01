@@ -100,8 +100,9 @@ proba_defaut_i <- function(N, t, TT, param, M, D, i){
     
 }
 
-spread_fct <- function(N, t, TT, param, M, D, i){
+spread_i_fct <- function(N, t, TT, param, M, D, i){
   if (t==TT){return(0)} # a verifier au temps t==TT
+  if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)} # à vérifier la condition
   return(-(1/(TT-t))*log(1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)))
 }
 
