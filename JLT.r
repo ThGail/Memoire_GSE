@@ -42,7 +42,7 @@ logMatrice <- function(Q, n){
 }
 
 # transformation pour la positivité hors diag
-Ltemp=logMatrice(Q,5000)
+Ltemp=logMatrice(Q,100)
 Lpos = pmax(Ltemp,0)
 Lneg = pmin(Ltemp,0)
 L = Lpos + diag(rowSums(Lneg))
@@ -185,13 +185,17 @@ param <- hjkb(c(0.2,0.2,0.2,0.2),Ecart_CIR,lower=LB,upper=UB)$par
 Ecart_JLT <- function(param){
   e <- 0
   for (t in 0:TT){ for (i in 1:6){
-    # 6 car spreadMarket ne contient que les 6 premiers ratings
-    spread <- spread_fct_i(1000, t, TT, param_test, M, D, i)
-    e <- e + (spread-SpreadMarket)^2
+    spread <- spread_i_fct(1000, t, TT, param_test, M, D, i,LGD)
+    e <- e + (spread-SpreadMarket[i])^2
   }}
   return(e)
-}
-# encore un pb avec le log
+} ## parametre sur le rating
+
+TT <- 1
+LB <- matrix(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), nrow = 8)
+UB <- matrix(c(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2), nrow = 8)
+param_tt <- hjkb(param_test,Ecart_JLT,lower=LB,upper=UB)$par
+# encore à améliorer
 
 
 
