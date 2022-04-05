@@ -219,15 +219,6 @@ Ecart_JLT <- function(param){
   }
   return(e)
 }
-test <- c(1,2,3,4)
-print(test[1:3])
 
-k_test2 <- param_test[,1]
-mu_test2 <- param_test[,2]
-sigma_test2 <- param_test[,3]
-pi_t_test2 <- param_test[,4]
-print(abs(pi_t_test2) + k_test2 * (mu_test2 - pi_t_test2))
-print(sigma_test2)
-temp2 <- abs(pi_t_test2) + k_test2 * (mu_test2 - pi_t_test2) + (sigma_test2 * sqrt(pi_t_test2)) %o% random
-print(temp2)
-print(pi_t_test)
+
+
