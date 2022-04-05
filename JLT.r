@@ -94,25 +94,28 @@ proba_defaut_i <- function(N, t, TT, param, M, D, i){
   
   for (j in (1:(K-1))){
     esp <- rowMeans(A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pit_fct(N,t,param)))[i]
-    sum = sum + M[i,j]*invM[i,j]*(esp-1)
+    sum = sum + M[i,j]*invM[j,K]*(esp-1)
   }
   return(sum)
     
 }
 
-spread_i_fct <- function(N, t, TT, param, M, D, i){
+spread_i_fct <- function(N, t, TT, param, M, D, i, LGD){
   if (t==TT){return(0)} # a verifier au temps t==TT
-  if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)} # à vérifier la condition
+  if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0)
+    {return(0)} # à vérifier la condition
   return(-(1/(TT-t))*log(1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)))
 }
 
 # test pour le spread AAA
 # pb : s'arrete à la maturité 25, au delà ne fonctionne pas tjrs
+LGD <- 0.3
 L <- c()
 for (t in 0:25){
-  L <- c(L,spread_fct(100, 0, t, param_test, M, D, 1,LGD))
+  L <- c(L,spread_i_fct(100, 0, t, param_test, M, D, 1, LGD))
 } 
 plot(L)
+
 
 ######### CALIBRAGE#########
 #On considere param comme une matrice, chaque ligne represente les parametres d une classe de rating
@@ -126,34 +129,11 @@ print(param_test)
 
 #### TEST ####
 n <- 2
-
-hist(pit_fct(100, 3, param_test), freq=FALSE, main='Histogramme des simulations (param random)', xlab='Simulation des lambda t = 3')
-random <- rnorm(n,0,1)
-print(random)
-
-k_test <- matrix(rep(param_test[,1], n), nrow = 8)
-mu_test <- matrix(rep(param_test[,2], n), nrow = 8)
-sigma_test <- matrix(rep(param_test[,3], n), nrow = 8)
-pi_t_test <- matrix(rep(param_test[,4], n), nrow = 8)
+N <- 2
+test <- colMeans(pit_fct(100, 3, param_test))
+hist(pit_fct(100, 3, param_test)[4,], freq=FALSE, main='Histogramme des simulations (param random)', xlab='Simulation des lambda t = 3')
 
 
-
-
-#Il y a un problème dans la fonction A !!!!
-(1/N)*rowSums(A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pit_fct(N,t,param)))
-
-ga <- sqrt(k_test^2 + 2 * D[1,1] * sigma_test^2)
-(2 * ga * exp((k_test + ga) * (2 / 2)) / ((k_test + ga) * (exp(ga * 2) - 1) + 2 * ga))**((2 * k_test * mu_test) / (sigma_test**2))
-print(A_fct(2, param_test, D[1,1]))
-
-print(B_fct(2, param_test, D[1,1]))
-k_test**2 + 2 * D[1,1] * sigma_test**2
-print(pi_t_test)
-
-LGD <- 0.6
-plot(spread_fct(1000, 3, 5, param_test, M, D, 1))
-
-print(proba_defaut_i(2, 3, 5, param_test, M, D, 1))
 
 
 
