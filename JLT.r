@@ -153,7 +153,7 @@ param_test <- matrix(c(0.327, 0.291, 0.200, 0.060, 0.004, 0.003, 0.003, 0.003, 0
 param_test <- matrix(c(2, 1.5, 2, 1.5, 2, 1.5, 2, 1.5, 0.3, 0.9, 0.5, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.9, 0.5, 0.6, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), nrow =8)
 
 N <- 1000
-TT <- 5 # quelle maturité prendre ?
+TT <- 5 # quelle maturité prendre ? considérer le spread constant ou considérer sur une maturité d'1 an 
 LB <- matrix(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), nrow = 8)
 UB <- matrix(c(9, 9, 9, 9, 9, 9, 9, 9, 20, 20, 20, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 1, 1, 1, 1, 1, 1, 1, 1), nrow = 8)
 param_tt <- hjkb(param_test,Ecart_JLT,lower=LB,upper=UB)$par
@@ -181,6 +181,15 @@ lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
 lines(spreadBBB, col='lightblue')
 lines(spreadBB, col='blue')
+
+# simulation de spread pour une maturité de 5 ans 
+tt <- seq(0,5,0.1)
+Spread_i_fct <- Vectorize(spread_i_fct,"t")
+SP = Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD)
+matplot(tt,t(SP),type="l",main="Simulation spread sur une maturité de 5ans pour AA",
+        ylab="spread", xlab="temps t")
+# on a parfois des valeurs négatives, 
+# mais en faisant plot(colMeans(Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD))) c'est ok
 
 
 ######### TEST #########
