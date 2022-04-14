@@ -4,6 +4,7 @@ set.seed(1)
 library(readxl) 
 library(dfoptim)
 
+
 setwd("/Users/thibaultgaillard/Documents/M1 Actuariat/Mémoire")
 sheetDGlo <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 1)
 sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
@@ -140,7 +141,7 @@ Ecart_JLT <- function(param){
 } ## parametre sur le rating
 
 
-######### CALIBRAGE#########
+##### CALIBRAGE #####
 #On considere param comme une matrice, chaque ligne represente les parametres d une classe de rating
 #Sachant qu'il y a 8 classes de rating et 4 parametres pour chacune d entre elle,
 #La dimension de la matrice param est 8 x 4
@@ -167,6 +168,7 @@ spreadA <- c()
 spreadBBB <- c()
 spreadBB <- c()
 spreadB <- c()
+
 for (t in 0:20) {
   spreadAAA <- c(spreadAAA, spread_i_calibrage(t, param_tt, M, D, 1,LGD))
   spreadAA <- c(spreadAA, spread_i_calibrage(t, param_tt, M, D, 2,LGD))
@@ -175,6 +177,7 @@ for (t in 0:20) {
   spreadBB <- c(spreadBB, spread_i_calibrage(t, param_tt, M, D, 5,LGD))
   spreadB <- c(spreadB, spread_i_calibrage(t, param_tt, M, D, 6,LGD))
 }
+
 plot(spreadB, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='purple')
 lines(spreadAAA, col='red')
 lines(spreadAA, col='orange')
@@ -185,49 +188,28 @@ lines(spreadBB, col='blue')
 # simulation de spread pour une maturité de 5 ans 
 tt <- seq(0,5,0.1)
 Spread_i_fct <- Vectorize(spread_i_fct,"t")
-SP = Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD)
-matplot(tt,t(SP),type="l",main="Simulation spread sur une maturité de 5ans pour AA",
+SP = Spread_i_fct(500, tt, 5, param_tt, M, D, 2)
+matplot(tt,SP,type="l",main="Simulation spread sur une maturité de 5ans pour AA",
         ylab="spread", xlab="temps t")
 # on a parfois des valeurs négatives, 
 # mais en faisant plot(colMeans(Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD))) c'est ok
 
 
-######### TEST #########
-n <- 2
-hist(pit_fct(100, 3, param_test), freq=FALSE, main='Histogramme des simulations (param random)', xlab='Simulation des lambda t = 3')
-random <- rnorm(n,0,1)
-print(random)
+#### Tests de martingalité ####
 
-k_test <- matrix(rep(param_test[,1], n), nrow = 8)
-mu_test <- matrix(rep(param_test[,2], n), nrow = 8)
-sigma_test <- matrix(rep(param_test[,3], n), nrow = 8)
-pi_t_test <- matrix(rep(param_test[,4], n), nrow = 8)
+spread.act <- c()
+for (t in 0:5){spread.act <- c(spread.act, mean(spread_i_fct(N, t, TT, param_tt, M, D, i)))}
+plot(spread.act,ylim=c(0.9,1.1),pch=20,col="darkgrey",
+     main="Test de martingalité pour les actions",
+     xlab="Maturité",
+     ylab="Moyenne de l'indice actualisé ")
+abline(h=S0,col="red",lty=3,lwd=2)
 
-Ecart_JLT <- function(param){
-  e <- 0
-  for (t in 0:TT){
-    spread <- spread_fct(1000, t, TT, param_test, M, D, i)
-    e <- e + (spread-SpreadMarket)^2
-  }
-  return(e)
-}
-
-# Calibrage des paramètres
-hist(pit_fct(1000, 3, param_test), freq=FALSE, main='Histogramme des simulations (param random)', xlab='Simulation des lambda t = 3')
-
-Ecart_JLT <- function(param){
-  e <- 0
-  for (t in 0:TT){
-    spread <- Prix_Spread_fct(0,t,param,LGD)
-    print(t)
-    #print(spread)
-    print()
-    print(spread-spread_mkt)
-    e <- e + (spread-spread_mkt)^2
-    #print(e)
-  }
-  return(e)
-}
+abline(h=S0+0.025,col="blue",lty=4)
+abline(h=S0-0.025,col="blue",lty=4)
+legend("topleft",legend=c("Prix initial","Borne à 5%"),
+       col=c("red","blue"),pch=20,
+       cex=0.8)
 
 
 
