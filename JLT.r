@@ -4,8 +4,7 @@ set.seed(1)
 library(readxl) 
 library(dfoptim)
 
-
-setwd("/Users/thibaultgaillard/Documents/M1 Actuariat/Mémoire")
+setwd("~/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1")
 sheetDGlo <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 1)
 sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
 
@@ -15,7 +14,7 @@ SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
 
 LGD = 0.3
 
-# exemple de matrice de transition de rating
+# exemple de matrice de transition de rating 2017
 Q = matrix(c(91.06,8.25,0.6,0.07,0.02,0,0,0,0,
              0.86,89.58,8.96,0.45,0.07,0.04,0.02,0,0.02,
              0.05,2.58,91.02,5.63,0.51,0.11,0.04,0.01,0.05,
@@ -42,11 +41,25 @@ logMatrice <- function(Q, n){
   return(mat)
 }
 
+expMatrice <- function(Q, n){
+  mat = matrix(rep(0,length(Q[1,])^2),nrow=length(Q[1,]))
+  for (i in 0:n){
+    mat = mat + puissanceMatrice(Q,i)/factorial(i)
+  }
+  return(mat)
+}
+
 # transformation pour la positivité hors diag
 Ltemp=logMatrice(Q,100)
 Lpos = pmax(Ltemp,0)
 Lneg = pmin(Ltemp,0)
 L = Lpos + diag(rowSums(Lneg))
+
+# expMatrice(L,100)
+# 
+# LL <- matrix(rep(0,9*9),nrow=9)
+# for (i in 1:9){LL[i,i] <- log(Q[i,i])}
+# for (i in 1:9){for (j in 1:9){if(j!=i){LL[i,j] <- Q[i,j]*log(Q[i,i])/(Q[i,i]-1)}}}
 
 # diagonalisation de la matrice L
 M = eigen(L)$vectors
@@ -59,7 +72,6 @@ A_fct <- function(u, param, dj) {
   mu <- param[,2]
   sigma <- param[,3]
   ga <- sqrt(k**2 - 2 * dj * sigma**2)
-  
   return(((2 * ga * exp((k + ga) * (u / 2))) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))**((2 * k * mu) / (sigma**2)))
 }
 
@@ -68,7 +80,6 @@ B_fct <- function(u, param, dj) {
   mu <- param[,2]
   sigma <- param[,3]
   ga <- sqrt(k**2 - 2 * dj * sigma**2)
-  
   return((- 2 * dj * (exp(ga * u) - 1)) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))
 }
 
@@ -81,27 +92,26 @@ pit_fct <- function(N, t, param) {
   
   if (t==0) {return(pi_t)}
   for (i in 1:t){
-    pi_t <- abs(pi_t + k * (mu - pi_t) + t(t(sigma * sqrt(pi_t)) * rnorm(N, 0, 1)))
-  }
+    pi_t <- abs(pi_t + k * (mu - pi_t) + t(t(sigma * sqrt(pi_t)) * rnorm(N, 0, 1)))}
   return(pi_t)
 }
 
 proba_defaut_i <- function(N, t, TT, param, M, D, i){
-  # pour un rating donnée, on fait N simulations
+# pour un rating donnée, on fait N simulations
   
-  invM <- solve(M) # le mettre en param ?
+  invM <- solve(M)
   K <- length(D[1,])
-  
-  sum = 0
+
+  sum <- 0
   for (j in (1:(K-1))){
-    esp <- rowMeans(A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pit_fct(N,t,param)))[i] # enlever rowMeans pour avoir les trajectoires ?
+    esp <- (A_fct(TT-t, param, D[j,j])*exp(-B_fct(TT-t, param, D[j,j])*pit_fct(N,t,param)))[i,]
     sum <- sum + M[i,j]*invM[j,K]*(esp-1)
   }
   return(sum)
 }
 
 proba_defaut_i_calibrage <- function(TT, param, M, D, i){
-  # pour un rating donnée, et une maturité TT donnée, on a juste besion de t=0
+# pour un rating donnée, et une maturité TT donnée, on a juste besion de t=0
   
   invM <- solve(M)
   K <- length(D[1,])
@@ -115,21 +125,34 @@ proba_defaut_i_calibrage <- function(TT, param, M, D, i){
   return(sum)
 }
 
-spread_i_fct <- function(N, t, TT, param, M, D, i){
-  # if (t==TT){return(0)} # a verifier au temps t==TT
-  # if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)} # à vérifier la condition
+spread_i_fct <- function(N, t, TT, param, M, D, i, LGD){
+  # if (t==TT){return(0)}
+  # if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)}
   return(-(1/(TT-t))*log(1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)))
 }
 
 spread_i_calibrage <- function(TT, param, M, D, i, LGD){
+  if (TT==0){return(0)}
   return(-log(1 - LGD * proba_defaut_i_calibrage(TT, param, M, D, i))/TT)
 }
 
-# fonction objective à minimiser
-# à minimiseer sur la maturité (ici 1 an ?) et sur les ratings
-# un seul appel à cette fonction necessaire pour le calibrage 
-# à calibrer K fois les paramètres k mu et pi0
-# et 1 fois le paramètre sigma (car la volatilité est supposé constante)
+
+######### CALIBRAGE#########
+#On considere param comme une matrice, chaque ligne represente les parametres d une classe de rating
+#Sachant qu'il y a 8 classes de rating et 4 parametres pour chacune d entre elle,
+#La dimension de la matrice param est 8 x 4
+#Les parametres sont c(kAAA, kAA, kA, kBaa, kBa, kB, kCaa, kCa-C, muAAA, muAA, muA, muBaa, muBa, muB, muCaa, muCaC, sigma, pi0)
+
+#### TEST ( a garder temporairement) ####
+# poser sigma constante !!!!
+param_test <- matrix(c(0.327, 0.291, 0.200, 0.060, 0.004, 0.003, 0.003, 0.003, 
+                       0.197, 0.325, 0.574, 0.543, 1.628, 2.018, 2.000, 2.000, 
+                       8.727, 9.614, 9.367, 1.411, 0.001, 0.001, 0.001, 0.001,
+                       0.003, 0.001, 0.001, 0.015, 0.054, 0.055, 0.055, 0.055), nrow =8)
+#param_test <- matrix(c(2, 1.5, 2, 1.5, 2, 1.5, 2, 1.5, 0.3, 0.9, 0.5, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.9, 0.5, 0.6, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), nrow =8)
+#param_test <- matrix(c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), nrow =8)
+
+
 Ecart_JLT <- function(param){
   e <- 0
   for (t in 1:TT){ for (i in 1:6){
@@ -140,24 +163,12 @@ Ecart_JLT <- function(param){
   return(e)
 } ## parametre sur le rating
 
-
-##### CALIBRAGE #####
-#On considere param comme une matrice, chaque ligne represente les parametres d une classe de rating
-#Sachant qu'il y a 8 classes de rating et 4 parametres pour chacune d entre elle,
-#La dimension de la matrice param est 8 x 4
-#Les parametres sont c(kAAA, kAA, kA, kBaa, kBa, kB, kCaa, kCa-C, muAAA, muAA, muA, muBaa, muBa, muB, muCaa, muCaC, sigma, pi0)
-
-# param a garder temporairement
-# les params du CIR
-param_test <- matrix(c(0.327, 0.291, 0.200, 0.060, 0.004, 0.003, 0.003, 0.003, 0.197, 0.325, 0.574, 0.543, 1.628, 2.018, 2.000, 2.000, 8.727, 9.614, 9.367, 1.411, 0.001, 0.001, 0.001, 0.001,0.003, 0.001, 0.001, 0.015, 0.054, 0.055, 0.055, 0.055), nrow =8)
-# les params hasards
-param_test <- matrix(c(2, 1.5, 2, 1.5, 2, 1.5, 2, 1.5, 0.3, 0.9, 0.5, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.9, 0.5, 0.6, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), nrow =8)
-
-N <- 1000
-TT <- 5 # quelle maturité prendre ? considérer le spread constant ou considérer sur une maturité d'1 an 
-LB <- matrix(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), nrow = 8)
+TT <- 2
+LB <- matrix(rep(0,8*4), nrow = 8)
 UB <- matrix(c(9, 9, 9, 9, 9, 9, 9, 9, 20, 20, 20, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 1, 1, 1, 1, 1, 1, 1, 1), nrow = 8)
-param_tt <- hjkb(param_test,Ecart_JLT,lower=LB,upper=UB)$par
+# UB <- matrix(rep(50,8*4), nrow = 8)
+# UB <- matrix(c(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2), nrow = 8) 
+param_tt <- hjkb(param_test,Ecart_JLT,lower=LB,upper=UB)$par # 2.189641e-05
 
 # nlminb(start = param_test,Ecart_JLT,lower=LB,upper=UB)
 # optim(par=param_test,fn=Ecart_JLT,lower=LB,upper=UB,method="L-BFGS-B")
@@ -168,8 +179,7 @@ spreadA <- c()
 spreadBBB <- c()
 spreadBB <- c()
 spreadB <- c()
-
-for (t in 0:20) {
+for (t in 1:20) {
   spreadAAA <- c(spreadAAA, spread_i_calibrage(t, param_tt, M, D, 1,LGD))
   spreadAA <- c(spreadAA, spread_i_calibrage(t, param_tt, M, D, 2,LGD))
   spreadA <- c(spreadA, spread_i_calibrage(t, param_tt, M, D, 3,LGD))
@@ -177,7 +187,6 @@ for (t in 0:20) {
   spreadBB <- c(spreadBB, spread_i_calibrage(t, param_tt, M, D, 5,LGD))
   spreadB <- c(spreadB, spread_i_calibrage(t, param_tt, M, D, 6,LGD))
 }
-
 plot(spreadB, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='purple')
 lines(spreadAAA, col='red')
 lines(spreadAA, col='orange')
@@ -186,30 +195,52 @@ lines(spreadBBB, col='lightblue')
 lines(spreadBB, col='blue')
 
 # simulation de spread pour une maturité de 5 ans 
-tt <- seq(0,5,0.1)
+tt <- seq(0,150)
 Spread_i_fct <- Vectorize(spread_i_fct,"t")
-SP = Spread_i_fct(500, tt, 5, param_tt, M, D, 2)
-matplot(tt,SP,type="l",main="Simulation spread sur une maturité de 5ans pour AA",
+SP = Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD)
+matplot(tt,t(SP),type="l",main="Simulation spread sur une maturité de 5ans pour AA",
         ylab="spread", xlab="temps t")
 # on a parfois des valeurs négatives, 
 # mais en faisant plot(colMeans(Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD))) c'est ok
 
-
-#### Tests de martingalité ####
-
-spread.act <- c()
-for (t in 0:5){spread.act <- c(spread.act, mean(spread_i_fct(N, t, TT, param_tt, M, D, i)))}
-plot(spread.act,ylim=c(0.9,1.1),pch=20,col="darkgrey",
-     main="Test de martingalité pour les actions",
-     xlab="Maturité",
-     ylab="Moyenne de l'indice actualisé ")
-abline(h=S0,col="red",lty=3,lwd=2)
-
-abline(h=S0+0.025,col="blue",lty=4)
-abline(h=S0-0.025,col="blue",lty=4)
-legend("topleft",legend=c("Prix initial","Borne à 5%"),
-       col=c("red","blue"),pch=20,
-       cex=0.8)
+plot(tt,colMeans(Spread_i_fct(1000, tt, 5, param_tt, M, D, 3, LGD)),'l',
+     main="Test de spread pour les actions AA de maturité 5 ans",
+     xlab="Temps",
+     ylab="Taux spread")
 
 
 
+#### Test de martingalité ####  pb here
+# prixZC_Vas <- function(t, TT, param, rt) {
+#   a <- param[1]
+#   b <- param[2]
+#   sigma <- param[3]
+#   return(exp(-b * (TT - t)) * exp(-(rt - b) * (1 - exp(-a * (TT - t))) / a + 0.5 * (sigma^2 * (TT - t) / a^2 - sigma^2 / a^3 * (1 - exp(-a * (TT - t))) - sigma^2 / (2 * a^3) * (1 - exp(-a * (TT - t)))^2)))
+# }
+# 
+# PZC_JLT_act <- function(N,t,TT,rt,param_taux,param_JLT,M,D,i,LGD){
+#   return(exp(-rt*t)*prixZC_Vas (t, TT, param_taux, rt)/(1-spread_i_fct(N, t, TT, param_JLT, M, D, i, LGD)^(TT-t)))
+# }
+# 
+# tt <- seq(0,30)
+# test <- c()
+# for (t in tt){
+#   test <- c(test,mean(PZC_JLT_act(N,0,t,TauxZC[t],param_free,param_tt,M,D,4,LGD)))
+# }
+# plot(test)
+# param_free est parametre de Vasicek
+
+# N=1000;i=1
+# spread.act <- c()
+# for (t in 0:5){spread.act <- c(spread.act, mean(spread_i_fct(N, t, TT, param_tt, M, D, i,LGD)))}
+# plot(spread.act,ylim=c(0.9,1.1),pch=20,col="darkgrey",
+#      main="Test de martingalité pour les actions",
+#      xlab="Maturité",
+#      ylab="Moyenne de l'indice actualisé ")
+# abline(h=S0,col="red",lty=3,lwd=2)
+# 
+# abline(h=S0+0.025,col="blue",lty=4)
+# abline(h=S0-0.025,col="blue",lty=4)
+# legend("topleft",legend=c("Prix initial","Borne à 5%"),
+#        col=c("red","blue"),pch=20,
+#        cex=0.8)
