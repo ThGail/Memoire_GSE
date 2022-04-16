@@ -35,12 +35,13 @@ lambdat_fct <- function(N, t, param) {
   mu <- param[2]
   sigma <- param[3]
   lambda_t <- param[4]
-  if (t==0) {return(lambda_t)}
+  if (t==0) {return(rep(lambda_t, N))}
   for (i in 1:t) {
     lambda_t <- abs(lambda_t + k * (mu - lambda_t) + sigma * sqrt(lambda_t) * rnorm(N, 0, 1))
   }
   return(lambda_t)
 }
+
 #Bien une Chi-2 ? 
 param_test <- c(0.5, 0.5, 0.5, 0.5)
 hist(lambdat_fct(1000, 3, param_test), freq=FALSE, main='Histogramme des simulations (param random)', xlab='Simulation des lambda t = 3')
@@ -53,9 +54,23 @@ survie_FF_fct <- function(N, t, TT, param) {
   return(A * exp(-B * lambda_t))
 }
 
+survie_FF_fct_sim <- function(N, t, TT, param) {
+  # On a calculé la moyenne en sortie de fonction et non directement dans la fonction
+  lambda_t <- lambdat_fct(N, t, param)
+  B <- B_fct(TT - t, param)
+  A <- A_fct(TT - t, param)
+  return(A * exp(-B * lambda_t))
+}
+
 Prix_Spread_fct <- function(t,TT,param,LGD){
   return((1 - LGD + LGD * survie_FF_fct(N,t,TT,param) )**(-1/(TT-t))-1)
 }
+
+#Attention il n'y a pas de N en paramètre ...
+Prix_Spread_fct_sim <- function(t,TT,param,LGD){
+  return((1 - LGD + LGD * survie_FF_fct_sim(N,t,TT,param) )**(-1/(TT-t))-1)
+}
+
 
 #### Fonction ?cart ? la moyenne pour le calibrage ####
 Ecart_CIR <- function(param){
@@ -130,14 +145,13 @@ abline(h = SpreadMarket[2])
 print("    k            mu         sigma       lambda0")
 print(param)
 
-
 #### Tests de martingalité ####
 spread.act <- c()
-N <- 10
-print(Prix_Spread_fct(t,TT,param,LGD))
-print(survie_FF_fct(N, t, TT, param))
-for (t in 0:5){spread.act <- c(spread.act, mean(Prix_Spread_fct(t,TT,param,LGD)))}
-plot(spread.act,ylim=c(0.9,1.1),pch=20,col="darkgrey",
+N <- 1000
+print(Prix_Spread_fct_sim(0,2,param_AAA,LGD))
+print(survie_FF_fct_sim(N, 0, 2, param_AAA))
+for (t in 0:150){spread.act <- c(spread.act, mean(Prix_Spread_fct_sim(t,TT,param,LGD)))}
+plot(spread.act,pch=20,col="darkgrey",
      main="Test de martingalité pour les actions",
      xlab="Maturité",
      ylab="Moyenne de l'indice actualisé ")
@@ -148,3 +162,5 @@ abline(h=S0-0.025,col="blue",lty=4)
 legend("topleft",legend=c("Prix initial","Borne à 5%"),
        col=c("red","blue"),pch=20,
        cex=0.8)
+
+plot(TauxZC)
