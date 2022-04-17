@@ -223,28 +223,28 @@ for (t in 1:20) {
   
   
 }
-plot(spreadB, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='purple')
-lines(spreadAAA, col='red')
+plot(spreadAAA, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='red')
 lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
 lines(spreadBBB, col='lightblue')
 lines(spreadBB, col='blue')
+lines(spreadB, col='purple')
 
 #Plot avec proba de défaut calibrage :
-plot(probaDefAAA, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='purple')
-lines(probaDefAA, col='red')
-lines(probaDefA, col='red')
-lines(probaDefBBB, col='red')
-lines(probaDefBB, col='red')
-lines(probaDefB, col='red')
+plot(probaDefAAA, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='red')
+lines(probaDefAA, col='orange')
+lines(probaDefA, col='brown')
+lines(probaDefBBB, col='lightblue')
+lines(probaDefBB, col='blue')
+lines(probaDefB, col='purple')
 
 #Plot avec proba de défaut normal :
-plot(probaDefAAAnorm, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='purple')
-lines(probaDefAAnorm, col='red')
-lines(probaDefAnorm, col='red')
-lines(probaDefBBBnorm, col='red')
-lines(probaDefBBnorm, col='red')
-lines(probaDefBnorm, col='red')
+plot(probaDefAAAnorm, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='red')
+lines(probaDefAAnorm, col='orange')
+lines(probaDefAnorm, col='brown')
+lines(probaDefBBBnorm, col='lightblue')
+lines(probaDefBBnorm, col='blue')
+lines(probaDefBnorm, col='purple')
 
 
 # simulation de spread pour une maturité de 5 ans 
