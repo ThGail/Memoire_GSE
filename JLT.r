@@ -68,27 +68,27 @@ D = diag(eigen(L)$values)
 
 # formule de la proba de défaut
 A_fct <- function(u, param, dj) {
-  k <- param[,1]
-  mu <- param[,2]
-  sigma <- param[,3]
+  k = param[1:8]
+  mu = param[9:16]
+  sigma = param[17]
   ga <- sqrt(k**2 - 2 * dj * sigma**2)
   return(((2 * ga * exp((k + ga) * (u / 2))) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))**((2 * k * mu) / (sigma**2)))
 }
 
 B_fct <- function(u, param, dj) {
-  k <- param[,1]
-  mu <- param[,2]
-  sigma <- param[,3]
+  k = param[1:8]
+  mu = param[9:16]
+  sigma = param[17]
   ga <- sqrt(k**2 - 2 * dj * sigma**2)
   return((- 2 * dj * (exp(ga * u) - 1)) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))
 }
 
 # On suppose que le mouvement brownien est standard
 pit_fct <- function(N, t, param) {
-  k <- matrix(rep(param_test[,1], N), nrow = 8)
-  mu <- matrix(rep(param_test[,2], N), nrow = 8)
-  sigma <- matrix(rep(param_test[,3], N), nrow = 8)
-  pi_t <- matrix(rep(param_test[,4], N), nrow = 8)
+  k <- matrix(rep(param[1:8], N), nrow = 8)
+  mu <- matrix(rep(param[(1:8)+8], N), nrow = 8)
+  sigma <- matrix(rep(param[17], N*8), nrow = 8)
+  pi_t <- matrix(rep(param[18:25], N), nrow = 8)
   
   if (t==0) {return(pi_t)}
   for (i in 1:t){
@@ -115,7 +115,7 @@ proba_defaut_i_calibrage <- function(TT, param, M, D, i){
   
   invM <- solve(M)
   K <- length(D[1,])
-  pi0 <- param_test[,4]
+  pi0 = param[18:25]
   
   sum <- 0
   for (j in (1:(K-1))){
@@ -126,7 +126,7 @@ proba_defaut_i_calibrage <- function(TT, param, M, D, i){
 }
 
 spread_i_fct <- function(N, t, TT, param, M, D, i, LGD){
-  # if (t==TT){return(0)}
+  if (t==TT){return(0)}
   # if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)}
   return(-(1/(TT-t))*log(1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)))
 }
@@ -145,13 +145,14 @@ spread_i_calibrage <- function(TT, param, M, D, i, LGD){
 
 #### TEST ( a garder temporairement) ####
 # poser sigma constante !!!!
-param_test <- matrix(c(0.327, 0.291, 0.200, 0.060, 0.004, 0.003, 0.003, 0.003, 
-                       0.197, 0.325, 0.574, 0.543, 1.628, 2.018, 2.000, 2.000, 
-                       8.727, 9.614, 9.367, 1.411, 0.001, 0.001, 0.001, 0.001,
-                       0.003, 0.001, 0.001, 0.015, 0.054, 0.055, 0.055, 0.055), nrow =8)
-#param_test <- matrix(c(2, 1.5, 2, 1.5, 2, 1.5, 2, 1.5, 0.3, 0.9, 0.5, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.9, 0.5, 0.6, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), nrow =8)
-#param_test <- matrix(c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), nrow =8)
-
+# param_init <- matrix(c(0.327, 0.291, 0.200, 0.060, 0.004, 0.003, 0.003, 0.003,
+#                        0.197, 0.325, 0.574, 0.543, 1.628, 2.018, 2.000, 2.000,
+#                        8.727, 9.614, 9.367, 1.411, 0.001, 0.001, 0.001, 0.001,
+#                        0.003, 0.001, 0.001, 0.015, 0.054, 0.055, 0.055, 0.055), nrow =8)
+param_init <- c(0.327, 0.291, 0.200, 0.060, 0.004, 0.003, 0.003, 0.003,
+                0.197, 0.325, 0.574, 0.543, 1.628, 2.018, 2.000, 2.000,
+                0.01,
+                0.003, 0.001, 0.001, 0.015, 0.054, 0.055, 0.055, 0.055)
 
 Ecart_JLT <- function(param){
   e <- 0
@@ -163,15 +164,18 @@ Ecart_JLT <- function(param){
   return(e)
 } ## parametre sur le rating
 
-TT <- 2
-LB <- matrix(rep(0,8*4), nrow = 8)
-UB <- matrix(c(9, 9, 9, 9, 9, 9, 9, 9, 20, 20, 20, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 1, 1, 1, 1, 1, 1, 1, 1), nrow = 8)
-# UB <- matrix(rep(50,8*4), nrow = 8)
-# UB <- matrix(c(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2), nrow = 8) 
-param_tt <- hjkb(param_test,Ecart_JLT,lower=LB,upper=UB)$par # 2.189641e-05
-
-# nlminb(start = param_test,Ecart_JLT,lower=LB,upper=UB)
-# optim(par=param_test,fn=Ecart_JLT,lower=LB,upper=UB,method="L-BFGS-B")
+TT <- 1 # les données fornis sont les spreads de maturité 1 an
+LB <- c(rep(0,8),rep(0,8),0,rep(0,8))
+UB <- c(rep(20,8),rep(20,8),100,rep(20,8))
+paramJLT = nlminb(start = param_init,Ecart_JLT,lower=LB,upper=UB)$par
+#paramJLT = hjkb(param_init,Ecart_JLT,lower=LB,upper=UB)$par # 2.731286e-05
+#paramJLT = optim(par=param_init,fn=Ecart_JLT,lower=LB,upper=UB,method="L-BFGS-B")$par
+paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)) # il faut que ce parametre soit non nul
+(listJLT <- list(
+  k = paramJLT[1:8],
+  mu = paramJLT[9:16],
+  sigma = paramJLT[17],
+  pi0 = paramJLT[18:25]))
 
 spreadAAA <- c()
 spreadAA <- c()
@@ -216,7 +220,7 @@ for (t in 1:20) {
   #Essai avec proba de défaut normal :
   probaDefAAAnorm <- c(probaDefAAAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 1)))
   probaDefAAnorm <- c(probaDefAAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 2)))
-  probaDefAAnorm <- c(probaDefAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 3)))
+  probaDefAnorm <- c(probaDefAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 3)))
   probaDefBBBnorm <- c(probaDefBBBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 4)))
   probaDefBBnorm <- c(probaDefBBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 5)))
   probaDefBnorm <- c(probaDefBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 6)))
