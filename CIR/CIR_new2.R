@@ -185,25 +185,26 @@ for (t in 0:150){
   }
 
 #plot avec Sim
-plot(survie_FF_sim_AAA,pch=20,col="darkgrey",
+plot(survie_FF_sim_AAA,col="red",type="l",
      main = 'Probabilité de survie',
      ylim = c(0, 1),
      xlab="Maturité",
      ylab="Moyenne de l'indice actualisé ")
-lines(survie_FF_sim_AA, col = 'red')
-lines(survie_FF_sim_A, col = 'orange')
-lines(survie_FF_sim_BBB, col = 'brown')
-lines(survie_FF_sim_BB , col = 'green')
-lines(survie_FF_sim_B, col = 'blue')
+lines(survie_FF_sim_AA, col = 'orange')
+lines(survie_FF_sim_A, col = 'brown')
+lines(survie_FF_sim_BBB, col = 'lightblue')
+lines(survie_FF_sim_BB , col = 'blue')
+lines(survie_FF_sim_B, col = 'purple')
 
 #Plot avec normal :
-plot(survie_FF_sim_AAA,pch=20,col="darkgrey",
+plot(survie_FF_AAA,col="red",type="l",
      main = 'Probabilité de survie',
      ylim = c(0, 1),
      xlab="Maturité",
      ylab="Moyenne de l'indice actualisé ")
-lines(survie_FF_sim_AA, col = 'red')
-lines(survie_FF_sim_A, col = 'orange')
-lines(survie_FF_sim_BBB, col = 'brown')
-lines(survie_FF_sim_BB , col = 'green')
-lines(survie_FF_sim_B, col = 'blue')
+lines(survie_FF_AA, col = 'orange')
+lines(survie_FF_A, col = 'brown')
+lines(survie_FF_BBB, col = 'lightblue')
+lines(survie_FF_BB , col = 'blue')
+lines(survie_FF_B, col = 'purple')
+
