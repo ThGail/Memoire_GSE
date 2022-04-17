@@ -179,6 +179,24 @@ spreadA <- c()
 spreadBBB <- c()
 spreadBB <- c()
 spreadB <- c()
+
+#Essai avec proba de défaut calibrage :
+probaDefAAA <- c()
+probaDefAA <- c()
+probaDefA <- c()
+probaDefBBB <- c()
+probaDefBB <- c()
+probaDefB <- c()
+
+#Essai avec proba de défaut normal :
+probaDefAAAnorm <- c()
+probaDefAAnorm <- c()
+probaDefAnorm <- c()
+probaDefBBBnorm <- c()
+probaDefBBnorm <- c()
+probaDefBnorm <- c()
+
+
 for (t in 1:20) {
   spreadAAA <- c(spreadAAA, spread_i_calibrage(t, param_tt, M, D, 1,LGD))
   spreadAA <- c(spreadAA, spread_i_calibrage(t, param_tt, M, D, 2,LGD))
@@ -186,6 +204,24 @@ for (t in 1:20) {
   spreadBBB <- c(spreadBBB, spread_i_calibrage(t, param_tt, M, D, 4,LGD))
   spreadBB <- c(spreadBB, spread_i_calibrage(t, param_tt, M, D, 5,LGD))
   spreadB <- c(spreadB, spread_i_calibrage(t, param_tt, M, D, 6,LGD))
+  
+  #Essai avec proba de défaut calibrage :
+  probaDefAAA <- c(probaDefAAA, proba_defaut_i_calibrage(t, param_tt, M, D, 1))
+  probaDefAA <- c(probaDefAA, proba_defaut_i_calibrage(t, param_tt, M, D, 2))
+  probaDefA <- c(probaDefA, proba_defaut_i_calibrage(t, param_tt, M, D, 3))
+  probaDefBBB <- c(probaDefBBB, proba_defaut_i_calibrage(t, param_tt, M, D, 4))
+  probaDefBB <- c(probaDefBB, proba_defaut_i_calibrage(t, param_tt, M, D, 5))
+  probaDefB <- c(probaDefB, proba_defaut_i_calibrage(t, param_tt, M, D, 6))
+  
+  #Essai avec proba de défaut normal :
+  probaDefAAAnorm <- c(probaDefAAAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 1)))
+  probaDefAAnorm <- c(probaDefAAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 2)))
+  probaDefAAnorm <- c(probaDefAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 3)))
+  probaDefBBBnorm <- c(probaDefBBBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 4)))
+  probaDefBBnorm <- c(probaDefBBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 5)))
+  probaDefBnorm <- c(probaDefBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 6)))
+  
+  
 }
 plot(spreadB, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='purple')
 lines(spreadAAA, col='red')
@@ -193,6 +229,23 @@ lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
 lines(spreadBBB, col='lightblue')
 lines(spreadBB, col='blue')
+
+#Plot avec proba de défaut calibrage :
+plot(probaDefAAA, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='purple')
+lines(probaDefAA, col='red')
+lines(probaDefA, col='red')
+lines(probaDefBBB, col='red')
+lines(probaDefBB, col='red')
+lines(probaDefB, col='red')
+
+#Plot avec proba de défaut normal :
+plot(probaDefAAAnorm, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='purple')
+lines(probaDefAAnorm, col='red')
+lines(probaDefAnorm, col='red')
+lines(probaDefBBBnorm, col='red')
+lines(probaDefBBnorm, col='red')
+lines(probaDefBnorm, col='red')
+
 
 # simulation de spread pour une maturité de 5 ans 
 tt <- seq(0,150)

@@ -146,21 +146,64 @@ print("    k            mu         sigma       lambda0")
 print(param)
 
 #### Tests de martingalité ####
-spread.act <- c()
+
+#survie sim :
+survie_FF_sim_AAA <- c()
+survie_FF_sim_AA <- c()
+survie_FF_sim_A <- c()
+survie_FF_sim_BBB <- c()
+survie_FF_sim_BB <- c()
+survie_FF_sim_B <- c()
+
+#Survie  normale
+survie_FF_AAA <- c()
+survie_FF_AA <- c()
+survie_FF_A <- c()
+survie_FF_BBB <- c()
+survie_FF_BB <- c()
+survie_FF_B <- c()
+
 N <- 1000
-print(Prix_Spread_fct_sim(0,2,param_AAA,LGD))
-print(survie_FF_fct_sim(N, 0, 2, param_AAA))
-for (t in 0:150){spread.act <- c(spread.act, mean(Prix_Spread_fct_sim(t,TT,param,LGD)))}
-plot(spread.act,pch=20,col="darkgrey",
-     main="Test de martingalité pour les actions",
+
+for (t in 0:150){
+  #Survie sim : 
+  survie_FF_sim_AAA <- c(survie_FF_sim_AAA, mean(survie_FF_fct_sim(N, 0, t, param_AAA)))
+  survie_FF_sim_AA <- c(survie_FF_sim_AA, mean(survie_FF_fct_sim(N, 0, t, param_AA)))
+  survie_FF_sim_A <- c(survie_FF_sim_A, mean(survie_FF_fct_sim(N, 0, t, param_A)))
+  survie_FF_sim_BBB <- c(survie_FF_sim_BBB, mean(survie_FF_fct_sim(N, 0, t, param_BBB)))
+  survie_FF_sim_BB <- c(survie_FF_sim_BB, mean(survie_FF_fct_sim(N, 0, t, param_BB)))
+  survie_FF_sim_B <- c(survie_FF_sim_B, mean(survie_FF_fct_sim(N, 0, t, param_B)))
+  
+  
+  #Survie normale : 
+  survie_FF_AAA <- c(survie_FF_AAA, survie_FF_fct(N, 0, t, param_AAA))
+  survie_FF_AA <- c(survie_FF_AA, survie_FF_fct(N, 0, t, param_AA))
+  survie_FF_A <- c(survie_FF_A, survie_FF_fct(N, 0, t, param_A))
+  survie_FF_BBB <- c(survie_FF_BBB, survie_FF_fct(N, 0, t, param_BBB))
+  survie_FF_BB <- c(survie_FF_BB, survie_FF_fct(N, 0, t, param_BB))
+  survie_FF_B <- c(survie_FF_B, survie_FF_fct(N, 0, t, param_B))
+  }
+
+#plot avec Sim
+plot(survie_FF_sim_AAA,pch=20,col="darkgrey",
+     main = 'Probabilité de survie',
+     ylim = c(0, 1),
      xlab="Maturité",
      ylab="Moyenne de l'indice actualisé ")
-abline(h=S0,col="red",lty=3,lwd=2)
+lines(survie_FF_sim_AA, col = 'red')
+lines(survie_FF_sim_A, col = 'orange')
+lines(survie_FF_sim_BBB, col = 'brown')
+lines(survie_FF_sim_BB , col = 'green')
+lines(survie_FF_sim_B, col = 'blue')
 
-abline(h=S0+0.025,col="blue",lty=4)
-abline(h=S0-0.025,col="blue",lty=4)
-legend("topleft",legend=c("Prix initial","Borne à 5%"),
-       col=c("red","blue"),pch=20,
-       cex=0.8)
-
-plot(TauxZC)
+#Plot avec normal :
+plot(survie_FF_sim_AAA,pch=20,col="darkgrey",
+     main = 'Probabilité de survie',
+     ylim = c(0, 1),
+     xlab="Maturité",
+     ylab="Moyenne de l'indice actualisé ")
+lines(survie_FF_sim_AA, col = 'red')
+lines(survie_FF_sim_A, col = 'orange')
+lines(survie_FF_sim_BBB, col = 'brown')
+lines(survie_FF_sim_BB , col = 'green')
+lines(survie_FF_sim_B, col = 'blue')
