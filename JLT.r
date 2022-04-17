@@ -1,5 +1,4 @@
 rm(list = ls())
-set.seed(1)
 
 library(readxl) 
 library(dfoptim)
@@ -126,10 +125,11 @@ proba_defaut_i_calibrage <- function(TT, param, M, D, i){
 }
 
 spread_i_fct <- function(N, t, TT, param, M, D, i, LGD){
-  if (t==TT){return(0)}
+  if (t==TT){return(rep(0,N))}
   # if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)}
   return(-(1/(TT-t))*log(1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)))
 }
+Spread_i_fct <- Vectorize(spread_i_fct,"t")
 
 spread_i_calibrage <- function(TT, param, M, D, i, LGD){
   if (TT==0){return(0)}
@@ -167,15 +167,17 @@ Ecart_JLT <- function(param){
 TT <- 1 # les données fornis sont les spreads de maturité 1 an
 LB <- c(rep(0,8),rep(0,8),0,rep(0,8))
 UB <- c(rep(20,8),rep(20,8),100,rep(20,8))
-paramJLT = nlminb(start = param_init,Ecart_JLT,lower=LB,upper=UB)$par
 #paramJLT = hjkb(param_init,Ecart_JLT,lower=LB,upper=UB)$par # 2.731286e-05
+paramJLT = nlminb(start = param_init,Ecart_JLT,lower=LB,upper=UB)$par
 #paramJLT = optim(par=param_init,fn=Ecart_JLT,lower=LB,upper=UB,method="L-BFGS-B")$par
-paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)) # il faut que ce parametre soit non nul
 (listJLT <- list(
   k = paramJLT[1:8],
   mu = paramJLT[9:16],
   sigma = paramJLT[17],
   pi0 = paramJLT[18:25]))
+(paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)))
+# il faut que ce parametre soit non nul
+
 
 spreadAAA <- c()
 spreadAA <- c()
@@ -201,32 +203,32 @@ probaDefBBnorm <- c()
 probaDefBnorm <- c()
 
 
-for (t in 1:20) {
-  spreadAAA <- c(spreadAAA, spread_i_calibrage(t, param_tt, M, D, 1,LGD))
-  spreadAA <- c(spreadAA, spread_i_calibrage(t, param_tt, M, D, 2,LGD))
-  spreadA <- c(spreadA, spread_i_calibrage(t, param_tt, M, D, 3,LGD))
-  spreadBBB <- c(spreadBBB, spread_i_calibrage(t, param_tt, M, D, 4,LGD))
-  spreadBB <- c(spreadBB, spread_i_calibrage(t, param_tt, M, D, 5,LGD))
-  spreadB <- c(spreadB, spread_i_calibrage(t, param_tt, M, D, 6,LGD))
+for (t in 1:30) {
+  spreadAAA <- c(spreadAAA, spread_i_calibrage(t, paramJLT, M, D, 1,LGD))
+  spreadAA <- c(spreadAA, spread_i_calibrage(t, paramJLT, M, D, 2,LGD))
+  spreadA <- c(spreadA, spread_i_calibrage(t, paramJLT, M, D, 3,LGD))
+  spreadBBB <- c(spreadBBB, spread_i_calibrage(t, paramJLT, M, D, 4,LGD))
+  spreadBB <- c(spreadBB, spread_i_calibrage(t, paramJLT, M, D, 5,LGD))
+  spreadB <- c(spreadB, spread_i_calibrage(t, paramJLT, M, D, 6,LGD))
   
   #Essai avec proba de défaut calibrage :
-  probaDefAAA <- c(probaDefAAA, proba_defaut_i_calibrage(t, param_tt, M, D, 1))
-  probaDefAA <- c(probaDefAA, proba_defaut_i_calibrage(t, param_tt, M, D, 2))
-  probaDefA <- c(probaDefA, proba_defaut_i_calibrage(t, param_tt, M, D, 3))
-  probaDefBBB <- c(probaDefBBB, proba_defaut_i_calibrage(t, param_tt, M, D, 4))
-  probaDefBB <- c(probaDefBB, proba_defaut_i_calibrage(t, param_tt, M, D, 5))
-  probaDefB <- c(probaDefB, proba_defaut_i_calibrage(t, param_tt, M, D, 6))
+  probaDefAAA <- c(probaDefAAA, proba_defaut_i_calibrage(t, paramJLT, M, D, 1))
+  probaDefAA <- c(probaDefAA, proba_defaut_i_calibrage(t, paramJLT, M, D, 2))
+  probaDefA <- c(probaDefA, proba_defaut_i_calibrage(t, paramJLT, M, D, 3))
+  probaDefBBB <- c(probaDefBBB, proba_defaut_i_calibrage(t, paramJLT, M, D, 4))
+  probaDefBB <- c(probaDefBB, proba_defaut_i_calibrage(t, paramJLT, M, D, 5))
+  probaDefB <- c(probaDefB, proba_defaut_i_calibrage(t, paramJLT, M, D, 6))
   
   #Essai avec proba de défaut normal :
-  probaDefAAAnorm <- c(probaDefAAAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 1)))
-  probaDefAAnorm <- c(probaDefAAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 2)))
-  probaDefAnorm <- c(probaDefAnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 3)))
-  probaDefBBBnorm <- c(probaDefBBBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 4)))
-  probaDefBBnorm <- c(probaDefBBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 5)))
-  probaDefBnorm <- c(probaDefBnorm, mean(proba_defaut_i(1000, 0, t, param_tt, M, D, 6)))
-  
+  probaDefAAAnorm <- c(probaDefAAAnorm, mean(proba_defaut_i(1000, 0, t, paramJLT, M, D, 1)))
+  probaDefAAnorm <- c(probaDefAAnorm, mean(proba_defaut_i(1000, 0, t, paramJLT, M, D, 2)))
+  probaDefAnorm <- c(probaDefAnorm, mean(proba_defaut_i(1000, 0, t, paramJLT, M, D, 3)))
+  probaDefBBBnorm <- c(probaDefBBBnorm, mean(proba_defaut_i(1000, 0, t, paramJLT, M, D, 4)))
+  probaDefBBnorm <- c(probaDefBBnorm, mean(proba_defaut_i(1000, 0, t, paramJLT, M, D, 5)))
+  probaDefBnorm <- c(probaDefBnorm, mean(proba_defaut_i(1000, 0, t, paramJLT, M, D, 6)))
   
 }
+
 plot(spreadAAA, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='red')
 lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
@@ -235,7 +237,7 @@ lines(spreadBB, col='blue')
 lines(spreadB, col='purple')
 
 #Plot avec proba de défaut calibrage :
-plot(probaDefAAA, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='red')
+plot(probaDefAAA, main='Probabilité de défaut calibrage', ylim=c(0,1), type='l', ylab="Spread", xlab="Maturité", col='red')
 lines(probaDefAA, col='orange')
 lines(probaDefA, col='brown')
 lines(probaDefBBB, col='lightblue')
@@ -243,7 +245,7 @@ lines(probaDefBB, col='blue')
 lines(probaDefB, col='purple')
 
 #Plot avec proba de défaut normal :
-plot(probaDefAAAnorm, main='Probabilité de défaut calibrage', type='l', ylab="Spread", xlab="Maturité", col='red')
+plot(probaDefAAAnorm, main='Probabilité de défaut calibrage', ylim=c(0,1), type='l', ylab="Spread", xlab="Maturité", col='red')
 lines(probaDefAAnorm, col='orange')
 lines(probaDefAnorm, col='brown')
 lines(probaDefBBBnorm, col='lightblue')
@@ -251,21 +253,19 @@ lines(probaDefBBnorm, col='blue')
 lines(probaDefBnorm, col='purple')
 
 
-# simulation de spread pour une maturité de 5 ans 
-tt <- seq(0,150)
-Spread_i_fct <- Vectorize(spread_i_fct,"t")
-SP = Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD)
-matplot(tt,t(SP),type="l",main="Simulation spread sur une maturité de 5ans pour AA",
+# simulation de spread AA pour une maturité de 10 ans 
+tt <- seq(0,10,0.1)[-length(seq(0,10,0.1))]
+SP <- Spread_i_fct(10, tt, 10, paramJLT, M, D, 2, LGD)
+matplot(tt,t(SP),type="l",main="Simulation spread sur une maturité de 10 ans pour AA",
         ylab="spread", xlab="temps t")
-# on a parfois des valeurs négatives, 
-# mais en faisant plot(colMeans(Spread_i_fct(500, tt, 5, param_tt, M, D, 2, LGD))) c'est ok
-
-plot(tt,colMeans(Spread_i_fct(1000, tt, 5, param_tt, M, D, 3, LGD)),'l',
-     main="Test de spread pour les actions AA de maturité 5 ans",
+plot(tt,colMeans(Spread_i_fct(1000, tt, 10, paramJLT, M, D, 2, LGD)),'l',
+     main="Test de spread pour les actions AA de maturité 10 ans",
      xlab="Temps",
      ylab="Taux spread")
 
-
+# test de martingalité : je crois que je n'est pas ca,
+plot(colMeans(Spread_i_fct(1000, 1:150, 150, paramJLT, M, D, 2, LGD))/TauxZC)
+# la martingalité se vérifie sur les ZC risques
 
 #### Test de martingalité ####  pb here
 # prixZC_Vas <- function(t, TT, param, rt) {
@@ -278,24 +278,24 @@ plot(tt,colMeans(Spread_i_fct(1000, tt, 5, param_tt, M, D, 3, LGD)),'l',
 # PZC_JLT_act <- function(N,t,TT,rt,param_taux,param_JLT,M,D,i,LGD){
 #   return(exp(-rt*t)*prixZC_Vas (t, TT, param_taux, rt)/(1-spread_i_fct(N, t, TT, param_JLT, M, D, i, LGD)^(TT-t)))
 # }
-# 
+#
 # tt <- seq(0,30)
 # test <- c()
 # for (t in tt){
-#   test <- c(test,mean(PZC_JLT_act(N,0,t,TauxZC[t],param_free,param_tt,M,D,4,LGD)))
+#   test <- c(test,mean(PZC_JLT_act(N,0,t,TauxZC[t],param_free,paramJLT,M,D,4,LGD)))
 # }
 # plot(test)
 # param_free est parametre de Vasicek
 
 # N=1000;i=1
 # spread.act <- c()
-# for (t in 0:5){spread.act <- c(spread.act, mean(spread_i_fct(N, t, TT, param_tt, M, D, i,LGD)))}
+# for (t in 0:5){spread.act <- c(spread.act, mean(spread_i_fct(N, t, TT, paramJLT, M, D, i,LGD)))}
 # plot(spread.act,ylim=c(0.9,1.1),pch=20,col="darkgrey",
 #      main="Test de martingalité pour les actions",
 #      xlab="Maturité",
 #      ylab="Moyenne de l'indice actualisé ")
 # abline(h=S0,col="red",lty=3,lwd=2)
-# 
+#
 # abline(h=S0+0.025,col="blue",lty=4)
 # abline(h=S0-0.025,col="blue",lty=4)
 # legend("topleft",legend=c("Prix initial","Borne à 5%"),
