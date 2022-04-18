@@ -175,7 +175,7 @@ Ecart_JLT <- function(param){
 
 TT <- 1 # les données fornis sont les spreads de maturité 1 an
 LB <- c(rep(0,8),rep(0,8),0,rep(0,8))
-UB <- c(rep(20,8),rep(20,8),100,rep(20,8))
+UB <- c(rep(30,8),rep(20,8),10,rep(30,8))
 #paramJLT = hjkb(param_init,Ecart_JLT,lower=LB,upper=UB)$par # 2.731286e-05
 paramJLT = nlminb(start = param_init,Ecart_JLT,lower=LB,upper=UB)$par
 #paramJLT = optim(par=param_init,fn=Ecart_JLT,lower=LB,upper=UB,method="L-BFGS-B")$par
@@ -184,7 +184,7 @@ paramJLT = nlminb(start = param_init,Ecart_JLT,lower=LB,upper=UB)$par
   mu = paramJLT[9:16],
   sigma = paramJLT[17],
   pi0 = paramJLT[18:25]))
-(paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)))
+(paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)[sqrt(2*listJLT$k*listJLT$mu) > 0]))
 # il faut que ce parametre soit non nul
 
 
@@ -199,7 +199,7 @@ spreadBBB <- spread_i_calibrage.T(Maturite30, paramJLT, M, D, 4, LGD)
 spreadBB <- spread_i_calibrage.T(Maturite30, paramJLT, M, D, 5, LGD)
 spreadB <- spread_i_calibrage.T(Maturite30, paramJLT, M, D, 6, LGD)
 
-plot(spreadAAA, main='Spread', type='l', ylab="Spread", ylim=c(0,0.03), xlab="Maturité", col='red')
+plot(spreadAAA, main='Spread', type='l', ylab="Spread", ylim=c(0,0.04), xlab="Maturité", col='red')
 lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
 lines(spreadBBB, col='lightblue')
@@ -310,7 +310,7 @@ plot(Maturite, rowMeans(PZCr_i_CF_JLT_sim(N=100, Maturite, paramVas, paramJLT, M
 
 # les plots
 plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
-     ylim=c(0.975,1.025),"l",col="red",ylab="CashFlow Actualisé",main="test de martingalité sur CASHFLOW")
+     ylim=c(0.985,1.015),"l",col="red",ylab="CashFlow Actualisé",main="test de martingalité sur CASHFLOW")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
@@ -320,3 +320,4 @@ lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowM
 ########## Test de martingalité : PZCr avec rating ##########
 
 # PZCr_i_JLT blabla reste à coder
+
