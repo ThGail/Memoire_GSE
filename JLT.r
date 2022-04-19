@@ -127,6 +127,22 @@ proba_defaut_i_calibrage <- function(TT, param, M, D, i){
 }
 proba_defaut_i_calibrage.T <- Vectorize(proba_defaut_i_calibrage,"TT")
 
+proba_passage_ij <- function(N, t, TT, param, M, D, i, j){
+  # pour un rating donnée, on fait N simulations
+  
+  invM <- solve(M)
+  K <- length(D[1,])
+  
+  sum <- 0
+  for (k in (1:(K-1))){
+    esp <- (A_fct(TT-t, param, D[k,k])*exp(-B_fct(TT-t, param, D[k,k])*pit_fct(N,t,param)))[i,]
+    sum <- sum + M[i,k]*invM[k,j]*esp
+  }
+  
+  sum <- sum + M[i,K]*invM[K,j]
+  return(sum)
+}
+
 spread_i_fct <- function(N, t, TT, param, M, D, i, LGD){
   if (t==TT){return(rep(0,N))}
   # if (1- LGD * proba_defaut_i(N, t, TT, param, M, D, i)<=0){return(0)}
@@ -269,7 +285,16 @@ TZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]){
   b <- param[2]
   sigma <- param[3]
   Ri <- b-sigma^2/(2*a^2)
+  # if (TT==0){return(r0)}
   return(Ri - ((Ri-r0)*(1-exp(-a*TT))-sigma^2/(4*a^2)*(1-exp(-a*TT))^2)/(a*TT))
+}
+TZC_Vas_FF_calibrage.T <- Vectorize(TZC_Vas_FF_calibrage,"TT")
+
+PZC_Vas_sim <- function(N, t, TT, param, r0=TauxZC[1]) {
+  a <- param[1]
+  b <- param[2]
+  sigma <- param[3]
+  return(exp(-b * (TT - t)) * exp(-(t(taux_Vas_sim.t(N, TT, param, r0)) - b) * (1 - exp(-a * (TT - t))) / a + 0.5 * (sigma^2 * (TT - t) / a^2 - sigma^2 / a^3 * (1 - exp(-a * (TT - t))) - sigma^2 / (2 * a^3) * (1 - exp(-a * (TT - t)))^2)))
 }
 
 PZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]) {
@@ -293,31 +318,46 @@ plot(PZC_Vas_FF_calibrage(Maturite,paramVas)/exp(-Maturite*TauxZC))
 
 
 ########## Test de martingalité : CASH FLOW ##########
-
 # prix risqué à t=0, calculé à partir du spread FF et PZC FF
 PZCr_i_CF_JLT_FF <- function(TT, param_taux, param_JLT, M, D, i, LGD){
   return(PZC_Vas_FF_calibrage.T(TT, param_taux)/(1+spread_i_calibrage.T(TT, param_JLT, M, D, i, LGD))^TT)
 }
 plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD))
 
-# moyenne prix ZC risqué actualisé au taux sans risque
-PZCr_i_CF_JLT_sim <- function(N, TT, param_taux, param_JLT, M, D, i, LGD){
-  pd_i <- proba_defaut_i.T(N, 0, TT, param_JLT, M, D, i)
+# moyenne prix ZC risqué CF actualisé au taux sans risque
+PZCr_i_CF_JLT_sim <- function(N, t, TT, param_taux, param_JLT, M, D, i, LGD){
+  pd_i <- proba_defaut_i.T(N, t, TT, param_JLT, M, D, i)
   #return(exp(-TT*TauxZC[TT])*t(1*(1-pd_i)+(1-LGD)*pd_i))
   return(exp(-TT*TZC_Vas_FF_calibrage(TT, param_taux))*t(1*(1-pd_i)+(1-LGD)*pd_i))
 }
-plot(Maturite, rowMeans(PZCr_i_CF_JLT_sim(N=100, Maturite, paramVas, paramJLT, M, D, 1, LGD)))
+plot(Maturite, rowMeans(PZCr_i_CF_JLT_sim(N=100, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)))
 
 # les plots
-plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
-     ylim=c(0.985,1.015),"l",col="red",ylab="CashFlow Actualisé",main="test de martingalité sur CASHFLOW")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
+     ylim=c(0.95,1.05),"l",col="red",ylab="CashFlow Actualisé",main="test de martingalité sur CASHFLOW")
+lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
 
 ########## Test de martingalité : PZCr avec rating ##########
+# moyenne prix ZC risqué actualisé au taux sans risque
+PZCr_i_JLT_sim <- function(N, t, TT, param_taux, param_JLT, M, D, i, LGD){
+  sum = proba_defaut_i_calibrage(t, param_JLT, M, D, i)*(1-LGD)*PZC_Vas_sim(N, t, TT, param_taux)
+  for (l in 1:(8-1)){
+    p_il = proba_passage_ij(N, 0, t, param_JLT, M, D, i, l)
+    PZCr_l = PZCr_i_CF_JLT_sim(N, t, TT, param_taux, param_JLT, M, D, l, LGD)
+    sum = sum + p_il*PZCr_l
+  }
+  return(exp(-t*TZC_Vas_FF_calibrage(t, param_taux))*sum)
+}
 
-# PZCr_i_JLT blabla reste à coder
-
+t = 0.1
+plot(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
+     ylim=c(0.9,1.1),"l",col="red",ylab="PZC Actualisé",main="test de martingalité sur ZCP")
+lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
