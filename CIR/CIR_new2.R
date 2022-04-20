@@ -10,7 +10,6 @@ sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
 Maturite <- as.numeric(sheetDGlo$`Courbe des taux ZC`[7:156])
 TauxZC    <- as.numeric(sheetDGlo$...2 [7:156])
 SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
-
 N <- 1000
 
 A_fct <- function(u, param) {
@@ -59,7 +58,8 @@ survie_FF_fct_sim <- function(N, t, TT, param) {
   lambda_t <- lambdat_fct(N, t, param)
   B <- B_fct(TT - t, param)
   A <- A_fct(TT - t, param)
-  return(A * exp(-B * lambda_t))
+  
+  return(matrix(A*exp(- lambda_t %*% t(B)), nrow = N))
 }
 
 Prix_Spread_fct <- function(t,TT,param,LGD){
@@ -128,7 +128,10 @@ param_B <- hjkb(c(0.2,0.2,0.2,0.2),Ecart_CIR,lower=LB,upper=UB)$par
 spread_mkt <- SpreadMarket[7]
 param_NR <- hjkb(c(0.2,0.2,0.2,0.2),Ecart_CIR,lower=LB,upper=UB)$par
 
-plot(1:15,Prix_Spread_fct(0, 1:15, param_AAA, LGD), main='Spread reproduits par le modèle CIR (T = 15)', type='l', ylab="Spread", xlab="Maturité", ylim=c(0.0005, 0.025), col='red')
+plot(1:15,Prix_Spread_fct(0, 1:15, param_AAA, LGD), 
+     main='Spread reproduits par le modèle CIR (T = 15)', 
+     type='l', ylab="Spread", xlab="Maturité", 
+     ylim=c(0.0005, 0.05), col='red')
 lines(Prix_Spread_fct(0, 1:15, param_AA, LGD), col='orange')
 lines(Prix_Spread_fct(0, 1:15, param_A, LGD), col='brown')
 lines(Prix_Spread_fct(0, 1:15, param_BBB, LGD), col='lightblue')
@@ -182,29 +185,138 @@ for (t in 0:150){
   survie_FF_BBB <- c(survie_FF_BBB, survie_FF_fct(N, 0, t, param_BBB))
   survie_FF_BB <- c(survie_FF_BB, survie_FF_fct(N, 0, t, param_BB))
   survie_FF_B <- c(survie_FF_B, survie_FF_fct(N, 0, t, param_B))
-  }
+}
 
-#plot avec Sim
+#Plot avec Sim
 plot(survie_FF_sim_AAA,col="red",type="l",
-     main = 'Probabilité de survie',
+     main = 'Probabilité de survie selon la notation',
      ylim = c(0, 1),
      xlab="Maturité",
-     ylab="Moyenne de l'indice actualisé ")
+     ylab="Probilité de survie")
 lines(survie_FF_sim_AA, col = 'orange')
 lines(survie_FF_sim_A, col = 'brown')
 lines(survie_FF_sim_BBB, col = 'lightblue')
 lines(survie_FF_sim_BB , col = 'blue')
 lines(survie_FF_sim_B, col = 'purple')
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)
 
 #Plot avec normal :
 plot(survie_FF_AAA,col="red",type="l",
-     main = 'Probabilité de survie',
+     main = 'Probabilité de survie selon la notation',
      ylim = c(0, 1),
      xlab="Maturité",
-     ylab="Moyenne de l'indice actualisé ")
+     ylab="Probabilité de survie ")
 lines(survie_FF_AA, col = 'orange')
 lines(survie_FF_A, col = 'brown')
 lines(survie_FF_BBB, col = 'lightblue')
 lines(survie_FF_BB , col = 'blue')
 lines(survie_FF_B, col = 'purple')
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)
 
+
+
+
+
+
+########## MARTINGALITE ##########
+
+#### Les fonctions utiles du Vasicek
+# paramVas <- c(0.0095787241,0.0382841814,0.0002632241)
+paramVas <- c(0.004084473,0.292354584,0.003962402) # calibrer à partir de TZC_Vas_FF_cali
+paramVas2 <- c(0.008738708, 0.041931152, 0.001186371)
+taux_Vas_sim <- function(N, t, param, r0=TauxZC[1]) {
+  a <- param[1]
+  b <- param[2]
+  sigma <- param[3]
+  return(rnorm(N, r0 * exp(-a * t) + b * (1 - exp(-a * t)), sigma * sqrt((1 - exp(-2 * a * t)) / (2 * a))))
+}
+taux_Vas_sim.t <- Vectorize(taux_Vas_sim,"t")
+
+TZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]){
+  a <- param[1]
+  b <- param[2]
+  sigma <- param[3]
+  Ri <- b-sigma^2/(2*a^2)
+  return(Ri - ((Ri-r0)*(1-exp(-a*TT))-sigma^2/(4*a^2)*(1-exp(-a*TT))^2)/(a*TT))
+}
+
+PZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]) {
+  a <- param[1]
+  b <- param[2]
+  sigma <- param[3]
+  return(exp(-b*TT) * exp(-(r0-b)*(1-exp(-a*TT))/a + 0.5 * (sigma^2 * TT / a^2 - sigma^2 / a^3 * (1 - exp(-a * TT)) - sigma^2 / (2 * a^3) * (1 - exp(-a * TT))^2)))
+}
+PZC_Vas_FF_calibrage.T <- Vectorize(PZC_Vas_FF_calibrage,"TT")
+
+# resultat calibration sur le TZC
+plot(TauxZC, main='courbe zéro coupon EIOPA')
+lines(TZC_Vas_FF_calibrage(Maturite,paramVas), col ='red')
+lines(TZC_Vas_FF_calibrage(Maturite,paramVas2), col= 'blue')
+
+# resultat sur PZC
+plot(exp(-Maturite*TauxZC))
+lines(exp(-Maturite*TZC_Vas_FF_calibrage(Maturite,paramVas)), col = 'red')
+
+# test pour voir erreur de calibrage du Vas
+plot(PZC_Vas_FF_calibrage(Maturite,paramVas)/exp(-Maturite*TauxZC))
+abline(h=1)
+abline(h=1.05)
+abline(h=0.95)
+
+
+########## Test de martingalité : CASH FLOW ##########
+paramCIR <- list(AAA = param_AAA,
+                 AA = param_AA, 
+                 A = param_A,
+                 BBB = param_BBB, 
+                 BB = param_BB, 
+                 B = param_B)
+paramCIR$AAA
+
+# prix risqué à t=0, calculé à partir du spread FF et PZC FF
+PZCr_i_CF_CIR_FF <- function(TT, param_taux, param_CIR, LGD){
+  return(PZC_Vas_FF_calibrage.T(TT, param_taux)/(1+Prix_Spread_fct(0,TT,param_CIR,LGD))^TT)
+}
+plot(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD), main='Prix ZC risqué par Formule Fermée', ylab = 'Prix')
+lines(exp(-Maturite*TauxZC))
+
+#survie_FF_fct_sim.T <- Vectorize(survie_FF_fct_sim,"TT")
+# moyenne prix ZC risqué actualisé au taux sans risque
+
+
+
+
+PZCr_i_CF_CIR_sim <- function(N, TT, param_taux, param_CIR, LGD){
+  surv_i <- survie_FF_fct_sim(N, 0.1, TT, param_CIR)
+  #return(exp(-TT*TauxZC[TT])*t(1*(surv_i)+(1-LGD)*(1-surv_i))
+  return(exp(-TT*TZC_Vas_FF_calibrage(TT, param_taux))*t(surv_i+(1-LGD)*(1-surv_i)))
+}
+
+#
+plot(Maturite, rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$AAA, LGD)), main='Prix empirique ZC risqué', ylab = 'Prix')
+
+#Comparaison des deux courbes :
+plot(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD), main='Prix ZC risqué par Formule Fermée', ylab = 'Prix', col = 'black', type = 'l')
+lines(Maturite, rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$AAA, LGD)), main='Prix empirique ZC risqué', ylab = 'Prix', col = 'red')
+lines(exp(-Maturite*TauxZC), col = 'blue')
+legend("topright", legend=c("Prix ZCR FF","Prix ZC Empirique", "Prix ZC EIOPA"),
+       col=c("black","red", "blue"),pch=20,
+       cex=0.8)
+
+# Les plots :
+plot(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD)/rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$AAA, LGD)),"l",
+     ylab="CashFlow Actualisé",
+     main="Test de martingalité CIR", 
+     col = 'red')
+lines(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$AA, LGD)/rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$AA, LGD)),"l",col="orange")
+lines(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$A, LGD)/rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$A, LGD)),"l",col="brown")
+lines(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$BBB, LGD)/rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$BBB, LGD)),"l",col="lightblue")
+lines(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$BB, LGD)/rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$BB, LGD)),"l",col="blue")
+lines(Maturite,PZCr_i_CF_CIR_FF(Maturite, paramVas, paramCIR$B, LGD)/rowMeans(PZCr_i_CF_CIR_sim(N, Maturite, paramVas, paramCIR$B, LGD)),"l",col="purple")
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)

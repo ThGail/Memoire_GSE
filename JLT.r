@@ -3,7 +3,7 @@ rm(list = ls())
 library(readxl) 
 library(dfoptim)
 
-setwd("~/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1")
+setwd("/Users/thibaultgaillard/Documents/M1 Actuariat/Mémoire")
 sheetDGlo <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 1)
 sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
 
@@ -215,12 +215,18 @@ spreadBBB <- spread_i_calibrage.T(Maturite30, paramJLT, M, D, 4, LGD)
 spreadBB <- spread_i_calibrage.T(Maturite30, paramJLT, M, D, 5, LGD)
 spreadB <- spread_i_calibrage.T(Maturite30, paramJLT, M, D, 6, LGD)
 
-plot(spreadAAA, main='Spread', type='l', ylab="Spread", ylim=c(0,0.04), xlab="Maturité", col='red')
+plot(spreadAAA, 
+     main='Spread selon la notation', type='l', 
+     ylab="Spread", 
+     ylim=c(0,0.04), xlab="Maturité", col='red')
 lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
 lines(spreadBBB, col='lightblue')
 lines(spreadBB, col='blue')
 lines(spreadB, col='purple')
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)
 
 #Essai avec proba de défaut calibrage :
 probaDefAAA <- proba_defaut_i_calibrage.T(Maturite30, paramJLT, M, D, 1)
@@ -230,12 +236,18 @@ probaDefBBB <- proba_defaut_i_calibrage.T(Maturite30, paramJLT, M, D, 4)
 probaDefBB <- proba_defaut_i_calibrage.T(Maturite30, paramJLT, M, D, 5)
 probaDefB <- proba_defaut_i_calibrage.T(Maturite30, paramJLT, M, D, 6)
 
-plot(probaDefAAA, main='Probabilité de défaut calibrage', ylim=c(0,1), type='l', ylab="Spread", xlab="Maturité", col='red')
-lines(probaDefAA, col='orange')
-lines(probaDefA, col='brown')
-lines(probaDefBBB, col='lightblue')
-lines(probaDefBB, col='blue')
-lines(probaDefB, col='purple')
+plot(1-probaDefAAA, 
+     main='Probabilité de Survie selon la notation', 
+     ylim=c(0,1), type='l', 
+     ylab="Probabilité de Survie", xlab="Maturité", col='red')
+lines(1-probaDefAA, col='orange')
+lines(1-probaDefA, col='brown')
+lines(1-probaDefBBB, col='lightblue')
+lines(1-probaDefBB, col='blue')
+lines(1-probaDefB, col='purple')
+legend("bottomleft",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)
 
 #Essai avec proba de défaut normal :
 probaDefAAAnorm <- colMeans(proba_defaut_i.T(1000, 0, Maturite30, paramJLT, M, D, 1))
@@ -245,28 +257,34 @@ probaDefBBBnorm <- colMeans(proba_defaut_i.T(1000, 0, Maturite30, paramJLT, M, D
 probaDefBBnorm <- colMeans(proba_defaut_i.T(1000, 0, Maturite30, paramJLT, M, D, 5))
 probaDefBnorm <- colMeans(proba_defaut_i.T(1000, 0, Maturite30, paramJLT, M, D, 6))
 
-plot(probaDefAAAnorm, main='Probabilité de défaut calibrage', ylim=c(0,1), type='l', ylab="Spread", xlab="Maturité", col='red')
+plot(probaDefAAAnorm, 
+     main='Probabilité de défaut selon la notation', 
+     ylim=c(0,1), type='l', 
+     ylab="Probabilité de défaut", xlab="Maturité", col='red')
 lines(probaDefAAnorm, col='orange')
 lines(probaDefAnorm, col='brown')
 lines(probaDefBBBnorm, col='lightblue')
 lines(probaDefBBnorm, col='blue')
 lines(probaDefBnorm, col='purple')
+legend("topleft",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)
 
 #simulation de spread AA pour une maturité de 10 ans
 tt <- seq(0,10,0.1)[-length(seq(0,10,0.1))]
 SP <- spread_i_fct.t(10, tt, 10, paramJLT, M, D, 2, LGD)
-matplot(tt,t(SP),type="l",main="Simulation spread sur une maturité de 10 ans pour AA",
-        ylab="spread", xlab="temps t")
+matplot(tt,t(SP),type="l",
+        main="Simulation spread sur maturité 10 ans pour AA",
+        ylab="Spread", 
+        xlab="Maturité")
 plot(tt,colMeans(spread_i_fct.t(1000, tt, 10, paramJLT, M, D, 2, LGD)),'l',
-     main="Test de spread pour les actions AA de maturité 10 ans",
-     xlab="Temps",
-     ylab="Taux spread")
+     main="Test de spread actions AA maturité 10 ans",
+     xlab="Maturité",
+     ylab="Spread")
 
 
 
-
-
-########## MARTINGALITE ##########
+######### MARTINGALITE ##########
 
 #### Les fonctions utiles du Vasicek
 # paramVas <- c(0.0095787241,0.0382841814,0.0002632241)
@@ -334,12 +352,17 @@ plot(Maturite, rowMeans(PZCr_i_CF_JLT_sim(N=100, 0, Maturite, paramVas, paramJLT
 
 # les plots
 plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
-     ylim=c(0.95,1.05),"l",col="red",ylab="CashFlow Actualisé",main="test de martingalité sur CASHFLOW")
+     ylim=c(0.999,1.004),"l",col="red",
+     ylab="CashFlow Actualisé",
+     main="Test Martingalité par CashFlow du modèle JLT")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.8)
 
 ########## Test de martingalité : PZCr avec rating ##########
 # moyenne prix ZC risqué actualisé au taux sans risque
@@ -355,9 +378,15 @@ PZCr_i_JLT_sim <- function(N, t, TT, param_taux, param_JLT, M, D, i, LGD){
 
 t = 0.1
 plot(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
-     ylim=c(0.9,1.1),"l",col="red",ylab="PZC Actualisé",main="test de martingalité sur ZCP")
+     ylim=c(0.9,1.3),"l",col="red",
+     xlab ="Maturité",
+     ylab="PZC Actualisé",
+     main="Test Martingalité sur ZCR modèle JLT")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.6)
