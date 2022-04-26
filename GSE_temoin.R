@@ -51,7 +51,7 @@ GSE_mat_temoin <- function(N, t, r0, param, sigma.action, sigma.immo, C){
   
   # simulation de mouvements browniens corr?l?s
   Z <- matrix(rnorm(3 * N), nrow = 3)
-  L <- t(chol(C))
+  L <- t(chol(C, pivot = FALSE))
   W <- L %*% Z
   W.vas <- W[1,]
   W.action <- W[2,]
