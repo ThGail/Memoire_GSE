@@ -44,14 +44,17 @@ BS_W <- function(t, S0, r0, param, sigma.act, W.vas, W.act) {
   return(X)
 }
 
+#Décompostion de Cholesky :
+L <- t(chol(Corr, pivot = FALSE))
+
 # la fonction principale qui donne le GSE t?moin avec les corr?lations,
 # pour une maturit? donn?e
-GSE_mat_temoin <- function(N, t, r0, param, sigma.action, sigma.immo, C){
+GSE_mat_temoin <- function(N, t, r0, param, sigma.action, sigma.immo, L){
   sigma.vas <- param[3]
   
   # simulation de mouvements browniens corr?l?s
   Z <- matrix(rnorm(3 * N), nrow = 3)
-  L <- t(chol(C, pivot = FALSE))
+  
   W <- L %*% Z
   W.vas <- W[1,]
   W.action <- W[2,]
@@ -68,7 +71,7 @@ vas.test <- c()
 action.test <- c()
 immo.test <- c()
 for (t in 1:TT){
-  test <- GSE_mat_temoin(N, t, r0, param, sigma.action, sigma.immo, Corr)
+  test <- GSE_mat_temoin(N, t, r0, param, sigma.action, sigma.immo, L)
   vas.test <- cbind(vas.test, test[,1])
   action.test <- cbind(action.test, test[,2])
   immo.test <- cbind(immo.test, test[,3])
