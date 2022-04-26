@@ -1,0 +1,7 @@
+mode d'emploi :
+
+1) modele_fonction
+2) modele_calibrage
+3) modele_graphique pour les plots et test de martingalite
+
+4) GSE
