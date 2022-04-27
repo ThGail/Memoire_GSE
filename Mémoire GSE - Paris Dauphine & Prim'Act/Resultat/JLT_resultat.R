@@ -129,4 +129,3 @@ lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)
-

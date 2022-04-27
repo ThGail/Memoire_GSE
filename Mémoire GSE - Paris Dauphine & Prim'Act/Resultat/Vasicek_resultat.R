@@ -48,7 +48,7 @@ plot(tt,colMeans(plotTZC),type="l",lwd=2,col="red",
      main="Moyenne de taux zéro-coupon de maturité 10 ans",
      xlab="Temps",ylab="TZC")
 
-# simulation TZC de maturité 10 ans (1000 simulations)
+# simulation PZC de maturité 10 ans (1000 simulations)
 plotPZC <- PZC_Vas_FF_sim.t(N, tt, 10, paramVas)
 matplot(tt,t(plotPZC[1:10,]),type="l",
         main="Scénarios du prix zéro-coupon de maturité 10 ans",
@@ -56,4 +56,13 @@ matplot(tt,t(plotPZC[1:10,]),type="l",
 plot(tt,colMeans(plotPZC),type="l",lwd=2,col="red",
      main="Moyenne du prix zéro-coupon de maturité 10 ans",
      xlab="Temps",ylab="TZC")
+
+# projection à 5 ans du PZC pour différente maturité
+plot(PZC_Vas_FF_calibrage(Maturite,paramVas),type='l',
+     main = "Projection du PZC dans 5 ans",xlab="Maturite",ylab="PZC")
+PZC5 = PZC_Vas_FF_sim(1000, 5, Maturite, paramVas)
+matplot(t(PZC5),type='l',add=TRUE)
+legend("topright",legend=c("Courbe PZC du modèle","Simulation du PZC avec t=5"),
+       col=c("black","lightblue"),pch=20,
+       cex=0.6)
 

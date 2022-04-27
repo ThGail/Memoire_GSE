@@ -70,6 +70,12 @@ proba_defaut_i_JLT <- function(N, t, TT, param, M, D, i){
   return(sum)
 }
 proba_defaut_i_JLT.T <- Vectorize(proba_defaut_i_JLT,"TT")
+proba_defaut_i_JLT.t <- Vectorize(proba_defaut_i_JLT,"t")
+
+proba_survie_i_JLT <- function(N, t, TT, param, M, D, i){
+  return(pmin(1,1-proba_defaut_i_JLT(N, t, TT, param, M, D, i)))}
+proba_survie_i_JLT.T <- Vectorize(proba_survie_i_JLT,'TT')
+proba_survie_i_JLT.t <- Vectorize(proba_survie_i_JLT,'t')
 
 # pareil en version calibrage
 proba_defaut_i_JLT_calibrage <- function(TT, param, M, D, i){
