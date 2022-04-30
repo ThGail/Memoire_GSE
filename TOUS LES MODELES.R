@@ -3,7 +3,7 @@ library(readxl)
 library(dfoptim)
 
 ### Importation des donnees ###################################################
-setwd("~/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1")
+setwd("~/UniversitÃ©/Master 1_Semestre 1_2021-2022/MÃ©moire de M1")
 sheetDGlo <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 1)
 sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
 sheetEIOPA <- read_excel("RFR_for_publication_RFR_curves.xlsx", sheet = 3)
@@ -23,8 +23,8 @@ Maturite30 <- Maturite[1:30]
 
 
 ### PARTIE VASICEK #############################################################
-#### Définition des fonctions Vasicek ###################################################
-# simulation taux instantané Vasicek
+#### DÃ©finition des fonctions Vasicek ###################################################
+# simulation taux instantanÃ© Vasicek
 taux_Vas_sim <- function(N, t, param, r0=TauxZC[1]) {
   a <- param[1]
   b <- param[2]
@@ -44,10 +44,10 @@ TZC_Vas_FF_sim <- function(N, t, TT, param, r0=TauxZC[1]){
   taux_vas <- matrix(rep(taux_Vas_sim(N,t,param,r0),nb_mat),ncol=nb_mat)
   return(Ri - ((Ri-taux_vas)*(1-exp(-a*theta))-sigma^2/(4*a^2)*(1-exp(-a*theta))^2)/(a*theta))
 }
-# simulation TZC des trajectoires pour une maturité donnée
+# simulation TZC des trajectoires pour une maturitÃ© donnÃ©e
 TZC_Vas_FF_sim.t <- Vectorize(TZC_Vas_FF_sim,"t")
 
-# formule fermée du TZC pour le calibrage
+# formule fermÃ©e du TZC pour le calibrage
 TZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]){
   a <- param[1]
   b <- param[2]
@@ -67,10 +67,10 @@ PZC_Vas_FF_sim <- function(N, t, TT, param, r0=TauxZC[1]){
   taux_vas <- matrix(rep(taux_Vas_sim(N,t,param,r0),nb_mat),ncol=nb_mat)
   return(exp(-b * theta) * exp(-(taux_vas - b) * (1 - exp(-a * theta)) / a + 0.5 * (sigma^2 * theta / a^2 - sigma^2 / a^3 * (1 - exp(-a * theta)) - sigma^2 / (2 * a^3) * (1 - exp(-a * theta))^2)))
 }
-# simulation PZC sur les trajectoires pour une maturité donnée
+# simulation PZC sur les trajectoires pour une maturitÃ© donnÃ©e
 PZC_Vas_FF_sim.t <- Vectorize(PZC_Vas_FF_sim,"t")
 
-# formule fermée du PZC (pour le calibrage)
+# formule fermÃ©e du PZC (pour le calibrage)
 PZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]) {
   a <- param[1]
   b <- param[2]
@@ -79,7 +79,7 @@ PZC_Vas_FF_calibrage <- function(TT, param, r0=TauxZC[1]) {
 }
 PZC_Vas_FF_calibrage.T <- Vectorize(PZC_Vas_FF_calibrage,"TT")
 
-# fonction objective à minimiser
+# fonction objective Ã  minimiser
 ecart_Vas <- function(param){
   e <- 0
   for (t in 1:length(TauxZC)){
@@ -94,7 +94,7 @@ ecart_Vas <- function(param){
 
 
 
-#### Calibrage du modèle Vasicek ###################################################
+#### Calibrage du modÃ¨le Vasicek ###################################################
 param_init = c(0.005,0.005,0.005)
 LB = c(0,0,1e-6)
 UB = c(1,1,2)
@@ -105,42 +105,43 @@ ecart_Vas(paramVas) # erreur = 0.0005183257
 
 
 
+
 #### Some plot Vasicek ###################################################
 N = 1000
 
 # plot calibrage TZC
-plot(TauxZC, type="l", main="Calibrage du taux zéro-coupon",col="red",lty=3,lwd=2,
-     xlab="Maturité",ylab="Taux zéro-coupon")
+plot(TauxZC, type="l", main="Calibrage du taux zÃ©ro-coupon",col="red",lty=3,lwd=2,
+     xlab="MaturitÃ©",ylab="Taux zÃ©ro-coupon")
 lines(TZC_Vas_FF_calibrage(Maturite,paramVas),lwd=2)
-legend("bottomright",legend=c("Courbe EIOPA (input)","Courbe TZC du modèle"),
+legend("bottomright",legend=c("Courbe EIOPA (input)","Courbe TZC du modÃ¨le"),
        col=c("red","black"),pch=20,
        cex=0.6)
 
 # plot PZC
-plot(exp(-Maturite*TauxZC), type="l", main="Vérification avec le prix zéro-coupon",col="red",lty=3,lwd=2,
-     xlab="Maturité",ylab="Prix zéro-coupon")
+plot(exp(-Maturite*TauxZC), type="l", main="VÃ©rification avec le prix zÃ©ro-coupon",col="red",lty=3,lwd=2,
+     xlab="MaturitÃ©",ylab="Prix zÃ©ro-coupon")
 lines(PZC_Vas_FF_calibrage(Maturite,paramVas),lwd=2)
-legend("topright",legend=c("Courbe issue de la EIOPA","Courbe PZC du modèle"),
+legend("topright",legend=c("Courbe issue de la EIOPA","Courbe PZC du modÃ¨le"),
        col=c("red","black"),pch=20,
        cex=0.6)
 
-# simulation TZC de maturité 10 ans (1000 simulations)
+# simulation TZC de maturitÃ© 10 ans (1000 simulations)
 tt <- seq(0,10,0.1)[-length(seq(0,10,0.1))]
 plotTZC <- TZC_Vas_FF_sim.t(N, tt, 10, paramVas)
 matplot(tt,t(plotTZC[1:10,]),type="l",
-        main="Scénarios de taux zéro-coupon de maturité 10 ans",
+        main="ScÃ©narios de taux zÃ©ro-coupon de maturitÃ© 10 ans",
         xlab="Temps",ylab="TZC")
 plot(tt,colMeans(plotTZC),type="l",lwd=2,col="red",
-     main="Moyenne de taux zéro-coupon de maturité 10 ans",
+     main="Moyenne de taux zÃ©ro-coupon de maturitÃ© 10 ans",
      xlab="Temps",ylab="TZC")
 
-# simulation TZC de maturité 10 ans (1000 simulations)
+# simulation TZC de maturitÃ© 10 ans (1000 simulations)
 plotPZC <- PZC_Vas_FF_sim.t(N, tt, 10, paramVas)
 matplot(tt,t(plotPZC[1:10,]),type="l",
-        main="Scénarios du prix zéro-coupon de maturité 10 ans",
+        main="ScÃ©narios du prix zÃ©ro-coupon de maturitÃ© 10 ans",
         xlab="Temps",ylab="PZC")
 plot(tt,colMeans(plotPZC),type="l",lwd=2,col="red",
-     main="Moyenne du prix zéro-coupon de maturité 10 ans",
+     main="Moyenne du prix zÃ©ro-coupon de maturitÃ© 10 ans",
      xlab="Temps",ylab="TZC")
 
 
@@ -148,7 +149,7 @@ plot(tt,colMeans(plotPZC),type="l",lwd=2,col="red",
 
 
 ### PARTIE HULL AND WHITE #############################################################
-#### Définition des fonctions HW ############################################
+#### DÃ©finition des fonctions HW ############################################
 PZC_fct <- splinefun(x = Maturite, y = PrixZC, method = "natural")
 logPZC_fct <- splinefun(x = Maturite, y = log(PrixZC), method = "natural")
 TfI <- -logPZC_fct(Maturite, deriv=1)
@@ -193,7 +194,7 @@ A_HW <- function(t, TT, param) {
   return((PZC_fct(TT)/PZC_fct(t))*exp(B*TfI_fct(t)-((sigma^2)/(4*a))*(1-exp(-2*a*t))*B^2))
 }
 
-# PZC avec la formule fermée
+# PZC avec la formule fermÃ©e
 PZC_HW_sim <- function(N,t,TT,param,r0=TauxZC[1]){
   return(A_HW(t,TT,param)*exp(-B_HW(t,TT,param)*taux_HW_sim(N, t, param,r0)))
 }
@@ -228,7 +229,7 @@ caps_HW_sim <- function(N,t,TT=20,param,K=K_ATM,r0=TauxZC[1]){
 
 caps_HW_calibrage <- function(TT,param,K=K_ATM,r0=TauxZC[1]){
   # calibrage en t=0
-  # en t=0, c'est une formule FF (pas d'aléa)
+  # en t=0, c'est une formule FF (pas d'alÃ©a)
   return(caps_HW_sim(N=1,t=0,TT,param,K,r0))
 }
 
@@ -248,7 +249,11 @@ ecart_HW_TZC <- function(param) {
   return(e)
 }
 
-#### Calibrage du modèle HW #############################################################
+
+
+
+
+#### Calibrage du modÃ¨le HW #############################################################
 (K_ATM = (PrixZC[1]-PrixZC[20])/sum(PrixZC[1:20]))
 
 param_init <- c(0.5,0.5)
@@ -263,44 +268,45 @@ ecart_HW_TZC(paramHW) # 3.212023e-06
 
 
 
+
 #### Some plot HW ##############################################
 N = 1000
 
 # test pour le PZC
 plot(PZC_HW_sim(N=1,0,Maturite,paramHW),type="l",lwd=2,
-     main = 'Prix zéro-coupon issu du HW', 
-     xlab = 'Maturité', ylab = 'Prix ZC')
+     main = 'Prix zÃ©ro-coupon issu du HW', 
+     xlab = 'MaturitÃ©', ylab = 'Prix ZC')
 lines(PrixZC,col="red",lty=3,lwd=2)
-# pour t=0, PZC est fermée, il suffit de faire "1" simulation
-legend("topright",legend=c("PZC donnée (input)","PZC du modèle"),
+# pour t=0, PZC est fermÃ©e, il suffit de faire "1" simulation
+legend("topright",legend=c("PZC donnÃ©e (input)","PZC du modÃ¨le"),
        col=c("red","black"),pch=20,
        cex=0.6)
 
 # test pour le TZC
 plot(PZCtoTZC_HW(N=1,0,Maturite,paramHW),type="l",lwd=2,
-     main = 'Taux zéro-coupon issu du HW', 
-     xlab = 'Maturité', ylab = 'Taux ZC')
+     main = 'Taux zÃ©ro-coupon issu du HW', 
+     xlab = 'MaturitÃ©', ylab = 'Taux ZC')
 lines(TauxZC,col="red",lty=3,lwd=2)
-legend("bottomright",legend=c("TZC donnée (input)","TZC du modèle"),
+legend("bottomright",legend=c("TZC donnÃ©e (input)","TZC du modÃ¨le"),
        col=c("red","black"),pch=20,
        cex=0.6)
 
-# simulation PZC dans 1 an pour différentes maturités
+# simulation PZC dans 1 an pour diffÃ©rentes maturitÃ©s
 PZCt1 <- PZC_HW_sim.T(N,1,Maturite,paramHW)
 matplot(Maturite,t(PZCt1[1:10,]),type='l',
-        main = 'Prix zéro-coupon dans 1 an simulé par HW',
-        xlab = 'Maturité', ylab = 'Prix ZC')
+        main = 'Prix zÃ©ro-coupon dans 1 an simulÃ© par HW',
+        xlab = 'MaturitÃ©', ylab = 'Prix ZC')
 lines(colMeans(PZCt1),type="l",lwd=2,col="red")
 lines(PrixZC)
 legend("topright",legend=c("PZC en t=1","PZC en t=0"),
        col=c("red","black"),pch=20,
        cex=0.6)
 
-# trajectoire du PZC de maturité 10 ans
+# trajectoire du PZC de maturitÃ© 10 ans
 tt <- seq(0,10,0.1)
 PZCT10 <- PZC_HW_sim.t(N,tt,10,paramHW)
 matplot(tt,t(PZCT10[1:10,]),type='l',
-        main = 'Trajectoire prix zéro-coupon de maturité 10 ans',
+        main = 'Trajectoire prix zÃ©ro-coupon de maturitÃ© 10 ans',
         xlab = 'Temps', ylab = 'Prix ZC')
 lines(tt,colMeans(PZCT10),type="l",lwd=2,col="red")
 
@@ -309,7 +315,7 @@ lines(tt,colMeans(PZCT10),type="l",lwd=2,col="red")
 
 
 ### PARTIE BLACK AND SCHOLES #############################################################
-#### Définition des fonctions BS ###################################################
+#### DÃ©finition des fonctions BS ###################################################
 S0 = 1; K = 1
 paramBS <- list(action=0.152396,immo=0.10)
 
@@ -323,14 +329,14 @@ PA_BS_FF_sim <- function(N, t, S0, param_Vas, param_actif, r0=TauxZC[1]){
 # simulation prix actif sur plusieurs temps
 PA_BS_FF_sim.t <- Vectorize(PA_BS_FF_sim,"t")
 
-# simulation prix actif pour le test de martingalité
+# simulation prix actif pour le test de martingalitÃ©
 PAact_BS_FF_sim <- function(N,t,S0,param_Vas, param_actif, r0=TauxZC[1]){
   r <- TZC_Vas_FF_calibrage(t, param_Vas, r0)
   return(exp(-r*t)*S0*exp((r-0.5*param_actif^2)*t+param_actif*rnorm(N,0,sqrt(t))))
 }
 PAact_BS_FF_sim.t <- Vectorize(PAact_BS_FF_sim,"t")
 
-# simulation prix de l'option Call actualisé pour une maturité donnée
+# simulation prix de l'option Call actualisÃ© pour une maturitÃ© donnÃ©e
 call_BS_sim <- function(N,t,TT,S0,param_Vas,param_actif,r0=TauxZC[1]){
   tau <- TT - t
   nb_mat <- length(tau)
@@ -357,60 +363,60 @@ N = 1000
 # moyenne simulation indice action pour 1000 simulations
 (plotPAaction = PA_BS_FF_sim.t(N,Maturite30,S0,paramVas,paramBS$action))
 matplot(t(plotPAaction[1:10,]),type="l",
-        main="Scénarios de l'indice action sur 30 ans",
+        main="ScÃ©narios de l'indice action sur 30 ans",
         xlab="Temps",ylab="indice action")
 lines(colMeans(plotPAaction),type="l",lwd=2,col="red")
 
 # moyenne simulation indice immo pour 1000 simulations
 (plotPAimmo = PA_BS_FF_sim.t(N,Maturite30,S0,paramVas,paramBS$immo))
 matplot(t(plotPAimmo[1:10,]),type="l",
-        main="Scénarios de l'indice immobilier sur 30 ans",
+        main="ScÃ©narios de l'indice immobilier sur 30 ans",
         xlab="Temps",ylab="indice immobilier")
 lines(colMeans(plotPAimmo),type="l",lwd=2,col="red")
 
-# convergence du call issu du prix action pour maturité 1 an
+# convergence du call issu du prix action pour maturitÃ© 1 an
 plotcallaction1an <- c()
 for (n in seq(1, 5000, 100)){
   plotcallaction1an <- c(plotcallaction1an, mean(call_BS_sim(n,0,1,S0,paramVas,paramBS$action)))
 }
 plot(seq(1,5000,100),plotcallaction1an, 
-     main=c("Convergence du call issu du prix action pour maturité 1 an"),pch=20,
+     main=c("Convergence du call issu du prix action pour maturitÃ© 1 an"),pch=20,
      xlab="Nombre de simulations",ylab="Prix call")
 abline(h=call_BS_FF(1,S0,K,paramVas,paramBS$action),lty=2,lwd=3,col="red")
 
-# convergence du call issu du prix immo pour maturité 1 an
+# convergence du call issu du prix immo pour maturitÃ© 1 an
 plotcallimmo1an <- c()
 for (n in seq(1, 5000, 100)){
   plotcallimmo1an <- c(plotcallimmo1an, mean(call_BS_sim(n,0,1,S0,paramVas,paramBS$immo)))
 }
 plot(seq(1, 5000, 100),plotcallimmo1an, 
-     main=c("Convergence du call issu du prix immobilier pour maturité 1 an"),pch=20,
+     main=c("Convergence du call issu du prix immobilier pour maturitÃ© 1 an"),pch=20,
      xlab="",ylab="Prix call")
 abline(h=call_BS_FF(1,S0,K,paramVas,paramBS$immo),lty=2,lwd=3,col="red")
 
-# test de martingalité sur indice action
+# test de martingalitÃ© sur indice action
 plotaction = PAact_BS_FF_sim.t(3e5,Maturite,S0,paramVas,paramBS$action)
 plot(colMeans(plotaction),ylim=c(0.9,1.1),pch=20,col="darkgrey",
-     main="Test de martingalité pour les actions",
-     xlab="Maturité",
-     ylab="Moyenne de l'indice actualisé ")
+     main="Test de martingalitÃ© pour les actions",
+     xlab="MaturitÃ©",
+     ylab="Moyenne de l'indice actualisÃ© ")
 abline(h=S0,col="red",lty=3,lwd=2)
 abline(h=S0+0.025,col="blue",lty=4)
 abline(h=S0-0.025,col="blue",lty=4)
-legend("topleft",legend=c("Prix initial","Borne à 5%"),
+legend("topleft",legend=c("Prix initial","Borne Ã  5%"),
        col=c("red","blue"),pch=20,
        cex=0.8)
 
-# test de martingalité sur indice immo
+# test de martingalitÃ© sur indice immo
 plotimmo = PAact_BS_FF_sim.t(1e5,Maturite,S0,paramVas,paramBS$immo)
 plot(colMeans(plotimmo),ylim=c(0.9,1.1),pch=20,col="darkgrey",
-     main="Test de martingalité pour les immobiliers",
-     xlab="Maturité",
-     ylab="Moyenne de l'indice actualisé ")
+     main="Test de martingalitÃ© pour les immobiliers",
+     xlab="MaturitÃ©",
+     ylab="Moyenne de l'indice actualisÃ© ")
 abline(h=S0,col="red",lty=3,lwd=2)
 abline(h=S0+0.025,col="blue",lty=4)
 abline(h=S0-0.025,col="blue",lty=4)
-legend("topleft",legend=c("Prix initial","Borne à 5%"),
+legend("topleft",legend=c("Prix initial","Borne Ã  5%"),
        col=c("red","blue"),pch=20,
        cex=0.8)
 
@@ -419,7 +425,7 @@ legend("topleft",legend=c("Prix initial","Borne à 5%"),
 
 
 ### PARTIE CIR #############################################################
-#### Définition des fonctions CIR ###################################################
+#### DÃ©finition des fonctions CIR ###################################################
 A_CIR <- function(u, param) {
   k <- param[1]
   mu <- param[2]
@@ -436,7 +442,7 @@ B_CIR <- function(u, param) {
   return((2 * (exp(ga * u) - 1)) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))
 }
 
-# calcule de l'intensite de défaut
+# calcule de l'intensite de dÃ©faut
 lambdat_CIR_sim <- function(N, t, param) {
   k <- param[1]
   mu <- param[2]
@@ -480,23 +486,23 @@ spread_CIR_FF_calibrage <- function(TT,param,LGD){
   return((1-LGD+LGD*survie_CIR_calibrage(TT,param))**(-1/TT)-1)
 }
 
-# prix zéro-coupon risqué en version FF pour chaque rating à la maturité
+# prix zÃ©ro-coupon risquÃ© en version FF pour chaque rating Ã  la maturitÃ©
 PZCr_CIR_FF <- function(TT, param_Vas, param_CIR, LGD){
   return(PZC_Vas_FF_calibrage(TT, param_Vas)/(1+spread_CIR_FF_calibrage(TT,param_CIR,LGD))^TT)
 }
 
-# simulation zéro-coupon risqué
+# simulation zÃ©ro-coupon risquÃ©
 PZCr_CIR_sim <- function(N,t,TT,param_Vas,param_CIR,LGD){
   surv <- survie_CIR_sim(N, t, TT, param_CIR)
   TZC <- TZC_Vas_FF_sim(N, t, TT, param_Vas)
   return(exp(-TT*t(TZC))*t(surv+(1-LGD)*(1-surv)))
 }
-# pour une maturité T fixé
+# pour une maturitÃ© T fixÃ©
 PZCr_CIR_sim.t <- Vectorize(PZCr_CIR_sim,"t")
-# pour t=0, à maturité variable
+# pour t=0, Ã  maturitÃ© variable
 PZCr_CIR_sim.T <- Vectorize(PZCr_CIR_sim,"TT")
 
-# fonction objective à minimiser pour le modèle CIR
+# fonction objective Ã  minimiser pour le modÃ¨le CIR
 ecart_CIR <- function(param){
   e <- 0
   for (t in Maturite[1:TT]){
@@ -509,8 +515,8 @@ ecart_CIR <- function(param){
 
 
 
-#### Calibrage du modèle CIR ###################################################
-# on a uniquement les spreads de maturité 1 an
+#### Calibrage du modÃ¨le CIR ###################################################
+# on a uniquement les spreads de maturitÃ© 1 an
 TT = 1; LGD = 0.3
 
 paramCIR <- list()
@@ -571,7 +577,7 @@ N = 1000
 hist(lambdat_CIR_sim(N, 3, param_init), freq=FALSE, main='Histogramme des simulations (param random)', xlab='Simulation des lambda t = 3')
 
 # plot du spread pour tous les rating sur 30 ans
-plot(Maturite30,spread_CIR_FF_calibrage(Maturite30, paramCIR$AAA, LGD), main='Les spread de crédit reproduits par le modèle CIR', type='l', ylab="Spread", xlab="Maturité", ylim=c(0.001, 0.03), col='red')
+plot(Maturite30,spread_CIR_FF_calibrage(Maturite30, paramCIR$AAA, LGD), main='Les spread de crÃ©dit reproduits par le modÃ¨le CIR', type='l', ylab="Spread", xlab="MaturitÃ©", ylim=c(0.001, 0.03), col='red')
 lines(spread_CIR_FF_calibrage(Maturite30, paramCIR$AA, LGD), col='orange')
 lines(spread_CIR_FF_calibrage(Maturite30, paramCIR$A, LGD), col='brown')
 lines(spread_CIR_FF_calibrage(Maturite30, paramCIR$BBB, LGD), col='lightblue')
@@ -582,23 +588,23 @@ legend("topright", c("AAA", "AA", "A", "BBB", "BB", "B"),
 # remarque : on trouve pareil avec 
 # plot(colMeans(spread_CIR_sim.T(N,0,Maturite30,paramCIR$AAA,LGD)))
 
-# simulation spread AAA pour une maturité de 30 ans
+# simulation spread AAA pour une maturitÃ© de 30 ans
 tt <- seq(1,30,0.5)[-length(seq(1,30,0.5))]
 plotCIRsurvieAAA <- spread_CIR_sim.t(N,tt,30,paramCIR$AAA,LGD)
 matplot(tt,t(plotCIRsurvieAAA[1:10,]),type="l",
-        main="Scénarios de spread AAA de maturité 30 ans",
+        main="ScÃ©narios de spread AAA de maturitÃ© 30 ans",
         xlab="Temps",ylab="Spread")
-# plot moyenne spread de maturité 30 ans avec Monte Carlo (sur 1000 simulations)
+# plot moyenne spread de maturitÃ© 30 ans avec Monte Carlo (sur 1000 simulations)
 lines(tt,colMeans(plotCIRsurvieAAA),type="l",lwd=2,col="red")
 
 
 
 
 
-#### (Test de martingalité CIR) ###################################################
+#### (Test de martingalitÃ© CIR) ###################################################
 plot(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$AAA, LGD)),"l",
-     ylab="CashFlow Actualisé",ylim=c(0.99,1.01),
-     main="Test de martingalité CIR", 
+     ylab="CashFlow ActualisÃ©",ylim=c(0.99,1.01),
+     main="Test de martingalitÃ© CIR", 
      col = 'red')
 lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AA, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$AA, LGD)),"l",col="orange")
 lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$A, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$A, LGD)),"l",col="brown")
@@ -614,7 +620,7 @@ legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
 
 
 ### PARTIE JLT #############################################################
-#### Prépration donnée historique JLT #########################################
+#### PrÃ©pration donnÃ©e historique JLT #########################################
 # exemple de matrice de transition de rating 2017
 Q = matrix(c(91.06,8.25,0.6,0.07,0.02,0,0,0,0,
              0.86,89.58,8.96,0.45,0.07,0.04,0.02,0,0.02,
@@ -650,7 +656,7 @@ expMatrice <- function(Q, n){
   return(mat)
 }
 
-# transformation pour la positivité hors diag
+# transformation pour la positivitÃ© hors diag
 Ltemp=logMatrice(Q,100)
 Lpos = pmax(Ltemp,0)
 Lneg = pmin(Ltemp,0)
@@ -659,13 +665,13 @@ L = Lpos + diag(rowSums(Lneg))
 # diagonalisation de la matrice L
 M = eigen(L)$vectors
 D = diag(eigen(L)$values)
-# round(M%*%D%*%solve(M),15) permet de retrouver la matrice de base (modulo erreur numérique)
+# round(M%*%D%*%solve(M),15) permet de retrouver la matrice de base (modulo erreur numÃ©rique)
 
 
 
 
 
-#### Définition des fonctions JLT ###################################################
+#### DÃ©finition des fonctions JLT ###################################################
 A_JLT <- function(u, param, dj) {
   k = param[1:8]
   mu = param[9:16]
@@ -682,7 +688,7 @@ B_JLT <- function(u, param, dj) {
   return((- 2 * dj * (exp(ga * u) - 1)) / ((k + ga) * (exp(ga * u) - 1) + 2 * ga))
 }
 
-# la dynamique pour la proba de défaut
+# la dynamique pour la proba de dÃ©faut
 pit_JLT <- function(N, t, param) {
   k <- matrix(rep(param[1:8], N), nrow = 8)
   mu <- matrix(rep(param[(1:8)+8], N), nrow = 8)
@@ -695,9 +701,9 @@ pit_JLT <- function(N, t, param) {
   return(pi_t)
 }
 
-# la proba de faire défaut à partir du rating i
+# la proba de faire dÃ©faut Ã  partir du rating i
 proba_defaut_i_JLT <- function(N, t, TT, param, M, D, i){
-  # pour un rating donnée, on fait N simulations
+  # pour un rating donnÃ©e, on fait N simulations
   
   invM <- solve(M)
   K <- length(D[1,])
@@ -713,7 +719,7 @@ proba_defaut_i_JLT.T <- Vectorize(proba_defaut_i_JLT,"TT")
 
 # pareil en version calibrage
 proba_defaut_i_JLT_calibrage <- function(TT, param, M, D, i){
-  # pour un rating donnée, et une maturité TT donnée, on a juste besion de t=0
+  # pour un rating donnÃ©e, et une maturitÃ© TT donnÃ©e, on a juste besion de t=0
   
   invM <- solve(M)
   K <- length(D[1,])
@@ -728,9 +734,9 @@ proba_defaut_i_JLT_calibrage <- function(TT, param, M, D, i){
 }
 proba_defaut_i_JLT_calibrage.T <- Vectorize(proba_defaut_i_JLT_calibrage,"TT")
 
-# formule générale de la proba de passage
+# formule gÃ©nÃ©rale de la proba de passage
 proba_passage_ij_JLT <- function(N, t, TT, param, M, D, i, j){
-  # pour un rating donnée, on fait N simulations
+  # pour un rating donnÃ©e, on fait N simulations
   
   invM <- solve(M)
   K <- length(D[1,])
@@ -765,7 +771,7 @@ spread_i_JLT_calibrage.T <- Vectorize(spread_i_JLT_calibrage,"TT")
 
 
 
-#### Calibrage du modèle JLT ###################################################
+#### Calibrage du modÃ¨le JLT ###################################################
 #On considere param comme une liste/matrice, chaque ligne represente les parametres d une classe de rating
 #Sachant qu'il y a 6 classes de rating et 4 parametres pour chacune d entre elle,
 #Les parametres sont c(kAAA, kAA, kA, kBaa, kBa, kB, 
@@ -788,7 +794,7 @@ ecart_JLT <- function(param){
   return(e)
 } ## parametre sur le rating
 
-TT <- 1 # les données fornis sont les spreads de maturité 1 an
+TT <- 1 # les donnÃ©es fornis sont les spreads de maturitÃ© 1 an
 LB <- c(rep(0,8),rep(0,8),0,rep(0,8))
 UB <- c(rep(30,8),rep(20,8),10,rep(30,8))
 #paramJLT = hjkb(param_init,Ecart_JLT,lower=LB,upper=UB)$par # 2.731286e-05
@@ -819,9 +825,9 @@ spreadBB <- spread_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 5, LGD)
 spreadB <- spread_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 6, LGD)
 
 plot(spreadAAA, 
-     main='Spread de crédit reproduits par le modèle JLT', type='l', 
+     main='Spread de crÃ©dit reproduits par le modÃ¨le JLT', type='l', 
      ylab="Spread", 
-     ylim=c(0,0.04), xlab="Maturité", col='red')
+     ylim=c(0,0.04), xlab="MaturitÃ©", col='red')
 lines(spreadAA, col='orange')
 lines(spreadA, col='brown')
 lines(spreadBBB, col='lightblue')
@@ -831,7 +837,7 @@ legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.8)
 
-#Essai avec proba de défaut calibrage :
+#Essai avec proba de dÃ©faut calibrage :
 probaDefAAA <- proba_defaut_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 1)
 probaDefAA <- proba_defaut_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 2)
 probaDefA <- proba_defaut_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 3)
@@ -840,9 +846,9 @@ probaDefBB <- proba_defaut_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 5)
 probaDefB <- proba_defaut_i_JLT_calibrage.T(Maturite30, paramJLT, M, D, 6)
 
 plot(1-probaDefAAA, 
-     main='Probabilité de Survie selon la notation', 
+     main='ProbabilitÃ© de Survie selon la notation', 
      ylim=c(0,1), type='l', 
-     ylab="Probabilité de Survie", xlab="Maturité", col='red')
+     ylab="ProbabilitÃ© de Survie", xlab="MaturitÃ©", col='red')
 lines(1-probaDefAA, col='orange')
 lines(1-probaDefA, col='brown')
 lines(1-probaDefBBB, col='lightblue')
@@ -852,7 +858,7 @@ legend("bottomleft",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.8)
 
-#Essai avec proba de défaut normal :
+#Essai avec proba de dÃ©faut normal :
 probaDefAAAnorm <- colMeans(proba_defaut_i_JLT.T(1000, 0, Maturite30, paramJLT, M, D, 1))
 probaDefAAnorm <- colMeans(proba_defaut_i_JLT.T(1000, 0, Maturite30, paramJLT, M, D, 2))
 probaDefAnorm <- colMeans(proba_defaut_i_JLT.T(1000, 0, Maturite30, paramJLT, M, D, 3))
@@ -861,9 +867,9 @@ probaDefBBnorm <- colMeans(proba_defaut_i_JLT.T(1000, 0, Maturite30, paramJLT, M
 probaDefBnorm <- colMeans(proba_defaut_i_JLT.T(1000, 0, Maturite30, paramJLT, M, D, 6))
 
 plot(probaDefAAAnorm, 
-     main='Probabilité de défaut selon la notation', 
+     main='ProbabilitÃ© de dÃ©faut selon la notation', 
      ylim=c(0,1), type='l', 
-     ylab="Probabilité de défaut", xlab="Maturité", col='red')
+     ylab="ProbabilitÃ© de dÃ©faut", xlab="MaturitÃ©", col='red')
 lines(probaDefAAnorm, col='orange')
 lines(probaDefAnorm, col='brown')
 lines(probaDefBBBnorm, col='lightblue')
@@ -873,29 +879,29 @@ legend("topleft",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.7)
 
-#simulation de spread AA pour une maturité de 10 ans
+#simulation de spread AA pour une maturitÃ© de 10 ans
 tt <- seq(0,10,0.1)[-length(seq(0,10,0.1))]
 SP <- spread_i_JLT.t(N, tt, 10, paramJLT, M, D, 2, LGD)
 matplot(tt,t(SP[1:10,]),type="l",
-        main="Simulation spread sur maturité 10 ans pour AA",
+        main="Simulation spread sur maturitÃ© 10 ans pour AA",
         ylab="Spread", 
-        xlab="Maturité")
+        xlab="MaturitÃ©")
 plot(tt,colMeans(SP),'l',col="red",lwd=1.5,
-     main=c("Moyenne de spread actions AA maturité 10 ans", "(sur 1000 simulations)"),
-     xlab="Maturité",
+     main=c("Moyenne de spread actions AA maturitÃ© 10 ans", "(sur 1000 simulations)"),
+     xlab="MaturitÃ©",
      ylab="Spread")
 
 
 
 
 
-#### Test de martingalité sur Cash Flow JLT ###################################################
-# prix risqué à t=0, calculé à partir du spread FF et PZC FF
+#### Test de martingalitÃ© sur Cash Flow JLT ###################################################
+# prix risquÃ© Ã  t=0, calculÃ© Ã  partir du spread FF et PZC FF
 PZCr_i_CF_JLT_FF <- function(TT, param_Vas, param_JLT, M, D, i, LGD){
   return(PZC_Vas_FF_calibrage.T(TT, param_Vas)/(1+spread_i_JLT_calibrage.T(TT, param_JLT, M, D, i, LGD))^TT)
 }
 
-# moyenne prix ZC risqué CF actualisé au taux sans risque
+# moyenne prix ZC risquÃ© CF actualisÃ© au taux sans risque
 PZCr_i_CF_JLT_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
   pd_i <- proba_defaut_i_JLT.T(N, t, TT, param_JLT, M, D, i)
   return(exp(-TT*TZC_Vas_FF_calibrage(TT, param_Vas))*t(1*(1-pd_i)+(1-LGD)*pd_i))
@@ -903,8 +909,8 @@ PZCr_i_CF_JLT_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
 
 plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
      ylim=c(0.99,1.01),"l",col="red",
-     ylab="CashFlow Actualisé",
-     main="Test Martingalité par CashFlow du modèle JLT")
+     ylab="CashFlow ActualisÃ©",
+     main="Test MartingalitÃ© par CashFlow du modÃ¨le JLT")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
 lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
@@ -918,7 +924,7 @@ legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
 
 
 
-#### Test de martingalité sur PZCr avec rating JLT ###################################################
+#### Test de martingalitÃ© sur PZCr avec rating JLT ###################################################
 # adaptation pour JLT
 PZC_Vas_sim <- function(N, t, TT, param, r0=TauxZC[1]) {
   a <- param[1]
@@ -927,7 +933,7 @@ PZC_Vas_sim <- function(N, t, TT, param, r0=TauxZC[1]) {
   return(exp(-b * (TT - t)) * exp(-(t(taux_Vas_sim.t(N, TT, param, r0)) - b) * (1 - exp(-a * (TT - t))) / a + 0.5 * (sigma^2 * (TT - t) / a^2 - sigma^2 / a^3 * (1 - exp(-a * (TT - t))) - sigma^2 / (2 * a^3) * (1 - exp(-a * (TT - t)))^2)))
 }
 
-# moyenne prix ZC risqué actualisé au taux sans risque
+# moyenne prix ZC risquÃ© actualisÃ© au taux sans risque
 PZCr_i_JLT_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
   sum = proba_defaut_i_JLT_calibrage(t, param_JLT, M, D, i)*(1-LGD)*PZC_Vas_sim(N, t, TT, param_Vas)
   for (l in 1:(8-1)){
@@ -941,9 +947,9 @@ PZCr_i_JLT_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
 t = 0.1
 plot(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
      ylim=c(0.9,1.1),"l",col="red",
-     xlab ="Maturité",
-     ylab="PZC Actualisé",
-     main="Test Martingalité sur PZC risqué du modèle JLT")
+     xlab ="MaturitÃ©",
+     ylab="PZC ActualisÃ©",
+     main="Test MartingalitÃ© sur PZC risquÃ© du modÃ¨le JLT")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
 lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
