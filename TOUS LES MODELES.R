@@ -100,8 +100,7 @@ LB = c(0,0,1e-6)
 UB = c(1,1,2)
 (paramVas = hjkb(param_init,ecart_Vas,lower=LB,upper=UB)$par)
 # 0.004084473 0.292354584 0.003962402
-# erreur = 0.0005183257
-
+ecart_Vas(paramVas) # erreur = 0.0005183257
 
 
 
@@ -201,6 +200,11 @@ PZC_HW_sim <- function(N,t,TT,param,r0=TauxZC[1]){
 PZC_HW_sim.T <- Vectorize(PZC_HW_sim,"TT")
 PZC_HW_sim.t <- Vectorize(PZC_HW_sim,"t")
 
+# formule de passage
+PZCtoTZC_HW <- function(N,t,TT,param,r0=TauxZC[1]){
+  return(-log(PZC_HW_sim(N,t,TT,param,r0))/(TT-t))
+}
+
 # prix d'un cap de maturite T au temps t
 caps_HW_sim <- function(N,t,TT=20,param,K=K_ATM,r0=TauxZC[1]){
   # nominal = 1
@@ -236,28 +240,25 @@ ecart_HW_cap <- function(param) {
   return(e)
 }
 
-ecart_HW_PZC <- function(param) {
+ecart_HW_TZC <- function(param) {
   e <- 0
-  for (t in 1:length(PrixZC)) {
-    e <- e + (PZC_HW_sim(1,0,t,param) - PrixZC[t])^2
+  for (t in 1:length(TauxZC)) {
+    e <- e + (PZCtoTZC_HW(1,0,t,param) - TauxZC[t])^2
   }
   return(e)
 }
-
 
 #### Calibrage du modèle HW #############################################################
 (K_ATM = (PrixZC[1]-PrixZC[20])/sum(PrixZC[1:20]))
 
 param_init <- c(0.5,0.5)
-LB = c(1e-10,1e-10)
+LB = c(1e-16,1e-16)
 UB = c(1,1) # lequel choisir ? impact sur l'erreur
 
 (paramHW <- hjkb(param_init,ecart_HW_cap,lower=LB,upper=UB)$par)
-# (paramHW <- nlminb(start = param_init,ecart_HW_cap,lower=LB,upper=UB)$par)
 
-ecart_HW_PZC(paramHW) # 0.0007896811
 ecart_HW_cap(paramHW) # 1.687805e-05
-
+ecart_HW_TZC(paramHW) # 3.212023e-06
 
 
 
@@ -266,9 +267,13 @@ ecart_HW_cap(paramHW) # 1.687805e-05
 N = 1000
 
 # test pour le PZC
-plot(PrixZC)
-lines(PZC_HW_sim(N=1,0,Maturite,paramHW),col="red")
+plot(PZC_HW_sim(N=1,0,Maturite,paramHW),type="l",lwd=2)
+lines(PrixZC,col="red",lty=3,lwd=2)
 # pour t=0, PZC est fermée, il suffit de faire "1" simulation
+
+# test pour le TZC
+plot(PZCtoTZC_HW(N=1,0,Maturite,paramHW),type="l",lwd=2)
+lines(TauxZC,col="red",lty=3,lwd=2)
 
 # simulation PZC dans 1 an pour différentes maturités
 PZCt1 <- PZC_HW_sim.T(N,1,Maturite,paramHW)
