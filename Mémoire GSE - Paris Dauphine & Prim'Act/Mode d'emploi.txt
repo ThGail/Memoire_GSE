@@ -1,7 +1,33 @@
-mode d'emploi :
+"Mémoire de M1\Mémoire GSE - Paris Dauphine & Prim'Act" 
 
-1) modele_fonction
-2) modele_calibrage
-3) modele_graphique pour les plots et test de martingalite
+Dossier rendu pour le mémoire de M1 du sujet A3,
+Sur "Générateur de scénarios économiques pour le risque de crédit en assurance"
+Réalisé par Mengru CHEN, Thibault GAILLARD, Sina MBAYE
+Encadré par Sugiban RATNASOTHY de Prim'Act
 
-4) GSE
+Dossier contenant :
+- fichier "Mode d'emploi"
+- fichier excel "Input_20210118_18h41m33s" contenant les données fournies par Prim'Act
+- dossier "Fonction" contenant l'ensemble des fonctions que nous avons définies
+	Vasicek_fonction, HW_fonction pour les modèles de taux
+	BS_fonction pour les modèles d'actifs
+	CIR_fonction, JLT_fonction pour les modèles de risque de crédit
+	GSE_fonction pour le générateur de scénarios économiques
+- dossier "Calibrage" contenant le calibrage des modèles
+	Vasicek_calibrage, HW_calibrage pour les modèles de taux
+	BS_calibrage qui est déjà donnée
+	CIR_calibrage, JLT_calibrage pour les modèles de risque de crédit
+- dossier "Resultat" contenant les plots et test de martingalité
+	Vasicek_resultat, HW_resultat pour les modèles de taux
+	BS_resultat pour les modèles d'actifs
+	CIR_resultat, JLT_resultat pour les modèles de risque de crédit
+	GSE_resultat pour le générateur de scénarios économiques
+
+L'ensemble des fichiers ont servi à la construction de GSE où les résultats se trouvent dans "Resultat > GSE_resultat".
+Etant donnée que nous avons plusieurs modèles de taux et de crédit, nous avons élaboré 4 versions :
+- Vasicek / CIR
+- Vasicek / JLT
+- Hull&White / CIR
+- Hull&White / JLT
+
+ATTENTION !!! Lors de l'exécution, pensez à modifier les chemins d'accès dans TOUS les fichiers.

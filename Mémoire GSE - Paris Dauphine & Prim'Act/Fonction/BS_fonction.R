@@ -1,3 +1,5 @@
+# définition des fonctions utiles du modèle Black&Scholes
+
 # simulation prix actif
 PA_BS_FF_sim <- function(N, t, S0, param_Vas, param_actif, r0=TauxZC[1]){
   nb_mat <- length(t)
@@ -7,8 +9,6 @@ PA_BS_FF_sim <- function(N, t, S0, param_Vas, param_actif, r0=TauxZC[1]){
 }
 # simulation prix actif sur plusieurs temps
 PA_BS_FF_sim.t <- Vectorize(PA_BS_FF_sim,"t")
-
-# définition des fonctions utiles du modèle Black and Scholes
 
 # simulation prix actif pour le test de martingalité
 PAact_BS_FF_sim <- function(N,t,S0,param_Vas, param_actif, r0=TauxZC[1]){

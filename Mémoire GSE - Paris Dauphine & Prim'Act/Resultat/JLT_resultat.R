@@ -8,8 +8,10 @@ setwd(chemin)
 
 ### Importation des donnees ###################################################
 source(paste(chemin_fct,"\\Vasicek_fonction.R",sep=""))
+source(paste(chemin_fct,"\\HW_fonction.R",sep=""))
 source(paste(chemin_fct,"\\JLT_fonction.R",sep=""))
 source(paste(chemin_cal,"\\Vasicek_calibrage.R",sep=""))
+source(paste(chemin_cal,"\\HW_calibrage.R",sep=""))
 source(paste(chemin_cal,"\\JLT_calibrage.R",sep=""))
 
 sheetDGlo <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 1)
@@ -100,32 +102,63 @@ plot(tt,colMeans(SP),'l',col="red",lwd=1.5,
      xlab="Maturité",
      ylab="Spread")
 
-### Test de martingalité sur Cash Flow JLT ###################################################
-plot(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
+### Test de martingalité sur Cash Flow JLT Vas ###################################################
+plot(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
      ylim=c(0.99,1.01),"l",col="red",
-     ylab="CashFlow Actualisé",
-     main="Test Martingalité par CashFlow du modèle JLT")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite,PZCr_i_CF_JLT_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+     ylab="CashFlow actualisé",
+     main=c("Test de martingalité sur CashFlow", "du modèle JLT (avec Vasicek)"))
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)
 
-### Test de martingalité sur PZCr avec rating JLT ###################################################
-t = 0.1
-plot(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
+### Test de martingalité sur PZCr avec rating JLT Vas ###################################################
+t = 0.2
+plot(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
      ylim=c(0.9,1.1),"l",col="red",
      xlab ="Maturité",
-     ylab="PZC Actualisé",
-     main="Test Martingalité sur PZC risqué du modèle JLT")
-lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite30,PZCr_i_CF_JLT_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_JLT_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+     ylab="PZC risqué actualisé",
+     main=c("Test de martingalité sur PZC risqué", "du modèle JLT (avec Vasicek)"))
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)
+
+### Test de martingalité sur Cash Flow JLT HW ###################################################
+plot(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 1, LGD)),
+     ylim=c(0.99,1.01),"l",col="red",
+     ylab="CashFlow actualisé",
+     main=c("Test de martingalité sur CashFlow", "du modèle JLT (avec HW)"))
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 6, LGD)),col="purple")
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.6)
+
+### Test de martingalité sur PZCr avec rating JLT HW ###################################################
+t = 0.2
+plot(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 1, LGD)),
+     ylim=c(0.9,1.1),"l",col="red",
+     xlab ="Maturité",
+     ylab="PZC risqué actualisé",
+     main=c("Test de martingalité sur PZC risqué", "du modèle JLT (avec HW)"))
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 6, LGD)),col="purple")
+legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
+       col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
+       cex=0.6)
+

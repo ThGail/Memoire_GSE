@@ -58,11 +58,12 @@ plot(tt,colMeans(plotPZC),type="l",lwd=2,col="red",
      xlab="Temps",ylab="TZC")
 
 # projection à 5 ans du PZC pour différente maturité
-plot(PZC_Vas_FF_calibrage(Maturite,paramVas),type='l',
-     main = "Projection du PZC dans 5 ans",xlab="Maturite",ylab="PZC")
 PZC5 = PZC_Vas_FF_sim(1000, 5, Maturite, paramVas)
-matplot(t(PZC5),type='l',add=TRUE)
-legend("topright",legend=c("Courbe PZC du modèle","Simulation du PZC avec t=5"),
-       col=c("black","lightblue"),pch=20,
+matplot(t(PZC5[1:10,]),type='l',
+        main = "Projection du PZC dans 5 ans",xlab="Maturite",ylab="PZC")
+lines(PZC_Vas_FF_calibrage(Maturite,paramVas),lwd=2,lty=20)
+lines(colMeans(PZC5),lwd=2,col="red")
+legend("topright",legend=c("Courbe PZC du modèle","Moyenne PZC avec t=5"),
+       col=c("black","red"),pch=20,
        cex=0.6)
 

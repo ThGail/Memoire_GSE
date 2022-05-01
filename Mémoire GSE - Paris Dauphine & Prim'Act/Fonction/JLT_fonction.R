@@ -138,34 +138,50 @@ ecart_JLT <- function(param){
   return(e)
 } ## parametre sur le rating
 
-### Pour la partie martingale Cash Flow ############################
+### Pour la partie martingale Cash Flow (Vas) ############################
 # prix risqué à t=0, calculé à partir du spread FF et PZC FF
-PZCr_i_CF_JLT_FF <- function(TT, param_Vas, param_JLT, M, D, i, LGD){
+PZCr_i_CF_JLT_Vas_FF <- function(TT, param_Vas, param_JLT, M, D, i, LGD){
   return(PZC_Vas_FF_calibrage.T(TT, param_Vas)/(1+spread_i_JLT_calibrage.T(TT, param_JLT, M, D, i, LGD))^TT)
 }
 
 # moyenne prix ZC risqué CF actualisé au taux sans risque
-PZCr_i_CF_JLT_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
+PZCr_i_CF_JLT_Vas_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
   pd_i <- proba_defaut_i_JLT.T(N, t, TT, param_JLT, M, D, i)
-  return(exp(-TT*TZC_Vas_FF_calibrage(TT, param_Vas))*t(1*(1-pd_i)+(1-LGD)*pd_i))
+  return(exp(-TT*TZC_Vas_FF_calibrage.T(TT, param_Vas))*t(1*(1-pd_i)+(1-LGD)*pd_i))
 }
 
-### Pour la partie martingalité en Zéro coupon #########################################
-# adaptation pour JLT
-PZC_Vas_sim <- function(N, t, TT, param, r0=TauxZC[1]) {
-  a <- param[1]
-  b <- param[2]
-  sigma <- param[3]
-  return(exp(-b * (TT - t)) * exp(-(t(taux_Vas_sim.t(N, TT, param, r0)) - b) * (1 - exp(-a * (TT - t))) / a + 0.5 * (sigma^2 * (TT - t) / a^2 - sigma^2 / a^3 * (1 - exp(-a * (TT - t))) - sigma^2 / (2 * a^3) * (1 - exp(-a * (TT - t)))^2)))
-}
-
+### Pour la partie martingalité en Zéro coupon (Vas) #########################################
 # moyenne prix ZC risqué actualisé au taux sans risque
-PZCr_i_JLT_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
-  sum = proba_defaut_i_JLT_calibrage(t, param_JLT, M, D, i)*(1-LGD)*PZC_Vas_sim(N, t, TT, param_Vas)
+PZCr_i_JLT_Vas_sim <- function(N, t, TT, param_Vas, param_JLT, M, D, i, LGD){
+  sum = proba_defaut_i_JLT_calibrage(t, param_JLT, M, D, i)*(1-LGD)*PZC_Vas_FF_sim(N, t, TT, param_Vas)
   for (l in 1:(8-1)){
     p_il = proba_passage_ij_JLT(N, 0, t, param_JLT, M, D, i, l)
-    PZCr_l = PZCr_i_CF_JLT_sim(N, t, TT, param_Vas, param_JLT, M, D, l, LGD)
+    PZCr_l = t(PZCr_i_CF_JLT_Vas_sim(N, t, TT, param_Vas, param_JLT, M, D, l, LGD))
     sum = sum + p_il*PZCr_l
   }
   return(exp(-t*TZC_Vas_FF_calibrage(t, param_Vas))*sum)
+}
+
+### Pour la partie martingale Cash Flow (HW) ############################
+# prix risqué à t=0, calculé à partir du spread FF et PZC FF
+PZCr_i_CF_JLT_HW_FF <- function(TT, param_HW, param_JLT, M, D, i, LGD){
+  return(PZC_HW_FF(TT, param_HW)/(1+spread_i_JLT_calibrage.T(TT, param_JLT, M, D, i, LGD))^TT)
+}
+
+# moyenne prix ZC risqué CF actualisé au taux sans risque
+PZCr_i_CF_JLT_HW_sim <- function(N, t, TT, param_HW, param_JLT, M, D, i, LGD){
+  pd_i <- proba_defaut_i_JLT.T(N, t, TT, param_JLT, M, D, i)
+  return(exp(-TT*TZC_HW_FF(TT, param_HW))*t(1*(1-pd_i)+(1-LGD)*pd_i))
+}
+
+### Pour la partie martingalité en Zéro coupon (HW) #########################################
+# moyenne prix ZC risqué actualisé au taux sans risque
+PZCr_i_JLT_HW_sim <- function(N, t, TT, param_HW, param_JLT, M, D, i, LGD){
+  sum = proba_defaut_i_JLT_calibrage(t, param_JLT, M, D, i)*(1-LGD)*PZC_HW_sim.T(N, t, TT, param_HW)
+  for (l in 1:(8-1)){
+    p_il = proba_passage_ij_JLT(N, 0, t, param_JLT, M, D, i, l)
+    PZCr_l = t(PZCr_i_CF_JLT_HW_sim(N, t, TT, param_HW, param_JLT, M, D, l, LGD))
+    sum = sum + p_il*PZCr_l
+  }
+  return(exp(-t*TZC_HW_FF(t, param_HW))*sum)
 }

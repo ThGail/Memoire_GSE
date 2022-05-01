@@ -20,6 +20,7 @@ Maturite <- as.numeric(sheetDGlo$`Courbe des taux ZC`[7:156])
 TauxZC <- as.numeric(sheetDGlo$...2[7:156])
 SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
 
+### PREPARATION MATRICE HISTORIQUE ##################################
 # exemple de matrice de transition de rating 2017
 Q = matrix(c(91.06,8.25,0.6,0.07,0.02,0,0,0,0,
              0.86,89.58,8.96,0.45,0.07,0.04,0.02,0,0.02,

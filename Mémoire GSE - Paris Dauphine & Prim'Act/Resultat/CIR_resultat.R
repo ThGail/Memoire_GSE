@@ -50,15 +50,15 @@ matplot(tt,t(plotCIRsurvieAAA[1:10,]),type="l",
 lines(tt,colMeans(plotCIRsurvieAAA),type="l",lwd=2,col="red")
 
 ### (Test de martingalité CIR) ###################################################
-plot(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$AAA, LGD)),"l",
+plot(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$AAA, LGD)),"l",
      ylab="CashFlow Actualisé",ylim=c(0.99,1.01),
      main="Test de martingalité CIR", 
      col = 'red')
-lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AA, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$AA, LGD)),"l",col="orange")
-lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$A, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$A, LGD)),"l",col="brown")
-lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$BBB, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$BBB, LGD)),"l",col="brown")
-lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$BB, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$BB, LGD)),"l",col="brown")
-lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$B, LGD)/colMeans(PZCr_CIR_sim.T(N, 0, Maturite, paramVas, paramCIR$B, LGD)),"l",col="brown")
+lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AA, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$AA, LGD)),"l",col="orange")
+lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$A, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$A, LGD)),"l",col="brown")
+lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$BBB, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$BBB, LGD)),"l",col="brown")
+lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$BB, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$BB, LGD)),"l",col="brown")
+lines(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$B, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$B, LGD)),"l",col="brown")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.8)

@@ -19,9 +19,9 @@ sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
 Maturite <- as.numeric(sheetDGlo$`Courbe des taux ZC`[7:156])
 TauxZC <- as.numeric(sheetDGlo$...2[7:156])
 
-# CALIBRAGE
+### CALIBRAGE ####################################################
 param_init = c(0.005,0.005,0.005)
-LB = c(0,0,1e-6)
-UB = c(1,1,2)
+LB = c(0,0,1e-3)
+UB = c(1,1,1)
 (paramVas = hjkb(param_init,ecart_Vas,lower=LB,upper=UB)$par)
-
+ecart_Vas(paramVas)

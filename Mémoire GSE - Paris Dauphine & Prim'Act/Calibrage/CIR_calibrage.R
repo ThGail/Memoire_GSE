@@ -20,7 +20,7 @@ Maturite <- as.numeric(sheetDGlo$`Courbe des taux ZC`[7:156])
 TauxZC <- as.numeric(sheetDGlo$...2[7:156])
 SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
 
-# CALIBRAGE
+### CALIBRAGE #####################################################
 TT = 1; LGD = 0.3
 
 paramCIR <- list()
