@@ -69,7 +69,7 @@ paramJLT = nlminb(start = param_init,ecart_JLT,lower=LB,upper=UB)$par
   mu = paramJLT[9:16],
   sigma = paramJLT[17],
   pi0 = paramJLT[18:25]))
-(paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)[sqrt(2*listJLT$k*listJLT$mu) > 0]))
+paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)[sqrt(2*listJLT$k*listJLT$mu) > 0])
 # il faut que sigma soit non nul
-listJLT
+(listJLT$sigma <- paramJLT[17])
 

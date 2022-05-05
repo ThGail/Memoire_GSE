@@ -77,14 +77,14 @@ legend("topleft", legend=c("Moyenne des simulations"),
        cex=0.7)
 
 # plot de l'indice action :
-matplot(t(action.test[1:10,]), type='l',  main="Simulation de l'indice action", ylab='Prix Action', xlab='Maturité')
+matplot(t(action.test[1:10,]), type='l',  main="Evolution de la performance action de maturité 50 ans", ylab='Indice action', xlab='Temps')
 lines(colMeans(action.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
 
 # plot de l'indice immobilier :
-matplot(t(immo.test[1:10,]), type='l', main="Simulation de l'indice immobilier", ylab='Prix Immobilier', xlab='Maturité')
+matplot(t(immo.test[1:10,]), type='l', main="Evolution de la performance immobilière de maturité 50 ans", ylab='Indice immobilier', xlab='Temps')
 lines(colMeans(immo.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
@@ -166,14 +166,14 @@ legend("topleft", legend=c("Moyenne des simulations"),
        cex=0.7)
 
 # plot de l'indice action :
-matplot(t(action.test[1:10,]), type='l',  main="Simulation de l'indice action", ylab='Prix Action', xlab='Maturité')
+matplot(t(action.test[30:40,]), type='l',  main="Evolution de la performance action de maturité 50 ans", ylab='Indice action', xlab='Temps')
 lines(colMeans(action.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
 
 # plot de l'indice immobilier :
-matplot(t(immo.test[1:10,]), type='l', main="Simulation de l'indice immobilier", ylab='Prix Immobilier', xlab='Maturité')
+matplot(t(immo.test[1:10,]), type='l', main="Evolution de la performance immobilière de maturité 50 ans", ylab='Indice immobilier', xlab='Temps')
 lines(colMeans(immo.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,

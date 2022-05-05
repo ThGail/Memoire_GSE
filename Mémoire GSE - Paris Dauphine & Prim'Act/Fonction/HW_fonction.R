@@ -58,6 +58,12 @@ TZC_HW_FF <- function(TT,param,r0=TauxZC[1]){
   return(TZC_HW_sim(1,0,TT,param,r0))
 }
 
+# deflateur 
+deflateur_HW <- function(N,t,TT,param,r0=TauxZC[1]){
+  return(exp(-TT*TZC_HW_sim(N,t,TT,param,r0)))
+}
+deflateur_HW.T <- Vectorize(deflateur_HW,"TT")
+
 # prix d'un cap de maturite T au temps t
 caps_HW_sim <- function(N,t,TT=20,param,K=K_ATM,r0=TauxZC[1]){
   # nominal = 1
@@ -97,8 +103,8 @@ ecart_HW_cap <- function(param) {
 # pour comparer l'erreur au TZC du Vasicek
 ecart_HW_TZC <- function(param) {
   e <- 0
-  for (t in 1:length(TauxZC)) {
-    e <- e + (TZC_HW_sim(1,0,t,param) - TauxZC[t])^2
+  for (t in 1:length(Maturite)) {
+    e <- e + (TZC_HW_sim(1,0,Maturite[t],param) - TauxZC[t])^2
   }
   return(e)
 }

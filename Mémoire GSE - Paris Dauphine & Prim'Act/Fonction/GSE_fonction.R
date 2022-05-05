@@ -74,6 +74,9 @@ GSE_Vas_CIR <- function(N, t, TT, param_Vas, param_action, param_immo, param_CIR
   TZCvas <- tauxToTZC_Vas(t,TT,vas,param_Vas)
   PZCvas <- tauxToPZC_Vas(t,TT,vas,param_Vas)
   
+  # déflateur
+  defl <- exp(-TT*TZCvas)
+  
   # calcul des spreads de crédit / proba de survie / proba de défaut / PZCr ?
   # on simule 6 autres pour les chacunes de rating (transformé en proba de survie)
   # les crédits sont indépendants les uns des autres (hypothses)
@@ -92,7 +95,7 @@ GSE_Vas_CIR <- function(N, t, TT, param_Vas, param_action, param_immo, param_CIR
   pzcr.BB <- PZCvas * (1-LGD+LGD*ps.BB)
   pzcr.B <- PZCvas * (1-LGD+LGD*ps.B)
   
-  return(list(PZC_Vas=PZCvas,TZC_Vas=TZCvas,ind_action=action,ind_immo=immo,
+  return(list(deflateur_c=defl,PZC_Vas=PZCvas,TZC_Vas=TZCvas,ind_action=action,ind_immo=immo,
               ps_AAA=ps.AAA,ps_AA=ps.AA,ps_A=ps.A,ps_BBB=ps.BBB,ps_BB=ps.BB,ps_B=ps.B,
               PZCr_AAA=pzcr.AAA,PZCr_AA=pzcr.AA,PZCr_A=pzcr.A,PZCr_BBB=pzcr.BBB,PZCr_BB=pzcr.BB,PZCr_B=pzcr.B))
 }
@@ -117,6 +120,8 @@ GSE_Vas_JLT <- function(N, t, TT, param_Vas, param_action, param_immo, param_JLT
   TZCvas <- tauxToTZC_Vas(t,TT,vas,param_Vas)
   PZCvas <- tauxToPZC_Vas(t,TT,vas,param_Vas)
   
+  defl <- exp(-TT*TZCvas)
+  
   ps.AAA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 1)
   ps.AA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 2)
   ps.A <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 3)
@@ -131,7 +136,7 @@ GSE_Vas_JLT <- function(N, t, TT, param_Vas, param_action, param_immo, param_JLT
   pzcr.BB <- PZCvas * (1-LGD+LGD*ps.BB)
   pzcr.B <- PZCvas * (1-LGD+LGD*ps.B)
   
-  return(list(PZC_Vas=PZCvas,TZC_Vas=TZCvas,ind_action=action,ind_immo=immo,
+  return(list(deflateur_c=defl,PZC_Vas=PZCvas,TZC_Vas=TZCvas,ind_action=action,ind_immo=immo,
               ps_AAA=ps.AAA,ps_AA=ps.AA,ps_A=ps.A,ps_BBB=ps.BBB,ps_BB=ps.BB,ps_B=ps.B,
               PZCr_AAA=pzcr.AAA,PZCr_AA=pzcr.AA,PZCr_A=pzcr.A,PZCr_BBB=pzcr.BBB,PZCr_BB=pzcr.BB,PZCr_B=pzcr.B))
 }
@@ -156,6 +161,8 @@ GSE_HW_CIR <- function(N, t, TT, param_HW, param_action, param_immo, param_CIR, 
   PZChw <- tauxToPZC_HW(t,TT,hw,param_HW)
   TZChw <- -log(PZChw)/(TT-t)
   
+  defl <- exp(-TT*TZChw)
+  
   ps.AAA <- survie_CIR_sim(N, t, TT, param_CIR$AAA)
   ps.AA <- survie_CIR_sim(N, t, TT, param_CIR$AA)
   ps.A <- survie_CIR_sim(N, t, TT, param_CIR$A)
@@ -163,14 +170,14 @@ GSE_HW_CIR <- function(N, t, TT, param_HW, param_action, param_immo, param_CIR, 
   ps.BB <- survie_CIR_sim(N, t, TT, param_CIR$BB)
   ps.B <- survie_CIR_sim(N, t, TT, param_CIR$B)
   
-  pzcr.AAA <- PZChw * (1-LGD+LGD*ps.AAA)
-  pzcr.AA <- PZChw * (1-LGD+LGD*ps.AA)
-  pzcr.A <- PZChw * (1-LGD+LGD*ps.A)
-  pzcr.BBB <- PZChw * (1-LGD+LGD*ps.BBB)
-  pzcr.BB <- PZChw * (1-LGD+LGD*ps.BB)
-  pzcr.B <- PZChw * (1-LGD+LGD*ps.B)
+  pzcr.AAA <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 1))
+  pzcr.AA <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 2))
+  pzcr.A <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 3))
+  pzcr.BBB <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 4))
+  pzcr.BB <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 5))
+  pzcr.B <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 6))
   
-  return(list(PZC_HW=PZChw,TZC_HW=TZChw,ind_action=action,ind_immo=immo,
+  return(list(deflateur_c=defl,PZC_HW=PZChw,TZC_HW=TZChw,ind_action=action,ind_immo=immo,
               ps_AAA=ps.AAA,ps_AA=ps.AA,ps_A=ps.A,ps_BBB=ps.BBB,ps_BB=ps.BB,ps_B=ps.B,
               PZCr_AAA=pzcr.AAA,PZCr_AA=pzcr.AA,PZCr_A=pzcr.A,PZCr_BBB=pzcr.BBB,PZCr_BB=pzcr.BB,PZCr_B=pzcr.B))
 }
@@ -195,6 +202,8 @@ GSE_HW_JLT <- function(N, t, TT, param_HW, param_action, param_immo, param_JLT, 
   PZChw <- tauxToPZC_HW(t,TT,hw,param_HW)
   TZChw <- -log(PZChw)/(TT-t)
   
+  defl <- exp(-TT*TZChw)
+  
   ps.AAA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 1)
   ps.AA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 2)
   ps.A <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 3)
@@ -202,15 +211,16 @@ GSE_HW_JLT <- function(N, t, TT, param_HW, param_action, param_immo, param_JLT, 
   ps.BB <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 5)
   ps.B <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 6)
   
-  # calcul du PZR risqué
-  pzcr.AAA <- PZChw * (1-LGD+LGD*ps.AAA)
-  pzcr.AA <- PZChw * (1-LGD+LGD*ps.AA)
-  pzcr.A <- PZChw * (1-LGD+LGD*ps.A)
-  pzcr.BBB <- PZChw * (1-LGD+LGD*ps.BBB)
-  pzcr.BB <- PZChw * (1-LGD+LGD*ps.BB)
-  pzcr.B <- PZChw * (1-LGD+LGD*ps.B)
+  pzcr.AAA <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 1))
+  pzcr.AA <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 2))
+  pzcr.A <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 3))
+  pzcr.BBB <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 4))
+  pzcr.BB <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 5))
+  pzcr.B <- PZChw * (1-LGD*proba_defaut_i_JLT(N, t, TT, param_JLT, M, D, 6))
   
-  return(list(PZC_HW=PZChw,TZC_HW=TZChw,ind_action=action,ind_immo=immo,
+  return(list(deflateur_c=defl,PZC_HW=PZChw,TZC_HW=TZChw,ind_action=action,ind_immo=immo,
               ps_AAA=ps.AAA,ps_AA=ps.AA,ps_A=ps.A,ps_BBB=ps.BBB,ps_BB=ps.BB,ps_B=ps.B,
               PZCr_AAA=pzcr.AAA,PZCr_AA=pzcr.AA,PZCr_A=pzcr.A,PZCr_BBB=pzcr.BBB,PZCr_BB=pzcr.BB,PZCr_B=pzcr.B))
 }
+GSE_HW_JLT.t <- Vectorize(GSE_HW_JLT,"t")
+GSE_HW_JLT.T <- Vectorize(GSE_HW_JLT,"TT")
