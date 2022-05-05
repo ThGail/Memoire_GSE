@@ -7,11 +7,9 @@ library(matrixStats)
 
 
 chemin = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act"
-chemin_fct = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act/Fonction"
-chemin_cal = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act/Calibrage"
+chemin_fct = paste(chemin,"/Fonction", sep="")
+chemin_cal = paste(chemin,"/Calibrage", sep="")
 setwd(chemin)
-
-
 
 chemin_export = "C:/Users/mengr/Desktop/Export"
 
@@ -81,8 +79,8 @@ action_HW.df <- as.data.frame(action_HW)
 immo_HW.df <- as.data.frame(immo_HW)
 names(action_HW.df) <- c(0,Maturite50)
 names(immo_HW.df) <- c(0,Maturite50)
-write_xlsx(action_HW.df,paste(chemin_export,"/HLG-HW_20220224_11h50m19sQActionsGlobales", ".xlsx", sep=""))
-write_xlsx(immo_HW.df,paste(chemin_export,"/HLG-HW_20220224_11h50m19sQImmobilier", ".xlsx", sep=""))
+write.csv2(action_HW.df,paste(chemin_export,"/HLG-HW_20220224_11h50m19sQActionsGlobales", ".csv", sep=""),row.names = FALSE)
+write.csv2(immo_HW.df,paste(chemin_export,"/HLG-HW_20220224_11h50m19sQImmobilier", ".csv", sep=""),row.names = FALSE)
 
 action_Vas <- c(rep(S0,N)) # pout T=0
 immo_Vas <- c(rep(S0,N))
@@ -149,7 +147,7 @@ for(t in 0:50){
 ### HLG-HW_20220224_11h50m19sQXXX #####################################
 projection = 3
 
-GSET50.test <- GSE_HW_JLT(N, 0, 0, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
+GSET50.test <- GSE_HW_JLT(N, TT, TT, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
 Proba_survie_AAA <- c(GSET50.test$PZCr_AAA)
 Proba_survie_AA <- c(GSET50.test$PZCr_AA)
 Proba_survie_A <- c(GSET50.test$PZCr_A)
@@ -160,7 +158,8 @@ Proba_survie_B <- c(GSET50.test$PZCr_B)
 
 for(i in 1:TT){
   print(paste("Année de projection : ", i))
-  GSET50.test <- GSE_HW_JLT(N, projection, i, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
+  GSET50.test <- GSE_HW_JLT(N, TT-i, TT, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
+  GSET50.test <- GSE_HW_JLT(N, TT-i, TT, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
   Proba_survie_AAA <- cbind(Proba_survie_AAA, GSET50.test$PZCr_AAA)
   Proba_survie_AA <- cbind(Proba_survie_AA, GSET50.test$PZCr_AA)
   Proba_survie_A <- cbind(Proba_survie_A, GSET50.test$PZCr_A)
@@ -169,10 +168,10 @@ for(i in 1:TT){
   Proba_survie_B <- cbind(Proba_survie_B, GSET50.test$PZCr_B)
 }
 
-plot(colMeans(Proba_survie_AA))
+plot(colMeans(Proba_survie_))
 plot(PrixZC)
 Proba_survie_A[3,]
-lines(t(apply(t(Proba_survie_BB), 2, cummin))[2,])
+lines(t(apply(t(Proba_survie_AAA), 2, cummin))[75,])
 lines(colMeans(t(apply(t(Proba_survie_AAA), 2, cummin))))
 lines(t(apply(t(Proba_survie_AA), 2, cummin))[3,])
 plot(1-LGD+LGD*t(apply(t(Proba_survie_BB), 2, cummin))[53,])
