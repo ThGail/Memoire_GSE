@@ -2,7 +2,7 @@
 
 # définition de l'environnement
 chemin = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act"
-chemin_fct = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act/Fonction"
+chemin_fct = paste(chemin,"/Fonction", sep="")
 setwd(chemin)
 
 # librairie utile

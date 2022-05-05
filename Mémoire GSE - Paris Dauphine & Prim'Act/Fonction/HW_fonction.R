@@ -60,9 +60,10 @@ TZC_HW_FF <- function(TT,param,r0=TauxZC[1]){
 
 # deflateur 
 deflateur_HW <- function(N,t,TT,param,r0=TauxZC[1]){
-  return(exp(-TT*TZC_HW_sim(N,t,TT,param,r0)))
+  return(exp(-(TT-t)*TZC_HW_sim(N,t,TT,param,r0)))
 }
 deflateur_HW.T <- Vectorize(deflateur_HW,"TT")
+deflateur_HW.t <- Vectorize(deflateur_HW,"t")
 
 # prix d'un cap de maturite T au temps t
 caps_HW_sim <- function(N,t,TT=20,param,K=K_ATM,r0=TauxZC[1]){

@@ -2,8 +2,8 @@ rm(list = ls())
 library(readxl)
 library(dfoptim)
 chemin = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act"
-chemin_fct = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act/Fonction"
-chemin_cal = "C:/Users/mengr/OneDrive/Documents/Université/Master 1_Semestre 1_2021-2022/Mémoire de M1/Mémoire GSE - Paris Dauphine & Prim'Act/Calibrage"
+chemin_fct = paste(chemin,"/Fonction", sep="")
+chemin_cal = paste(chemin,"/Calibrage", sep="")
 setwd(chemin)
 
 ### Importation des donnees ###################################################

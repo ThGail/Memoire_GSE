@@ -75,7 +75,7 @@ GSE_Vas_CIR <- function(N, t, TT, param_Vas, param_action, param_immo, param_CIR
   PZCvas <- tauxToPZC_Vas(t,TT,vas,param_Vas)
   
   # déflateur
-  defl <- exp(-TT*TZCvas)
+  defl <- exp(-(TT-t)*TZCvas)
   
   # calcul des spreads de crédit / proba de survie / proba de défaut / PZCr ?
   # on simule 6 autres pour les chacunes de rating (transformé en proba de survie)
@@ -120,7 +120,7 @@ GSE_Vas_JLT <- function(N, t, TT, param_Vas, param_action, param_immo, param_JLT
   TZCvas <- tauxToTZC_Vas(t,TT,vas,param_Vas)
   PZCvas <- tauxToPZC_Vas(t,TT,vas,param_Vas)
   
-  defl <- exp(-TT*TZCvas)
+  defl <- exp(-(TT-t)*TZCvas)
   
   ps.AAA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 1)
   ps.AA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 2)
@@ -161,7 +161,7 @@ GSE_HW_CIR <- function(N, t, TT, param_HW, param_action, param_immo, param_CIR, 
   PZChw <- tauxToPZC_HW(t,TT,hw,param_HW)
   TZChw <- -log(PZChw)/(TT-t)
   
-  defl <- exp(-TT*TZChw)
+  defl <- exp(-(TT-t)*TZChw)
   
   ps.AAA <- survie_CIR_sim(N, t, TT, param_CIR$AAA)
   ps.AA <- survie_CIR_sim(N, t, TT, param_CIR$AA)
@@ -202,7 +202,7 @@ GSE_HW_JLT <- function(N, t, TT, param_HW, param_action, param_immo, param_JLT, 
   PZChw <- tauxToPZC_HW(t,TT,hw,param_HW)
   TZChw <- -log(PZChw)/(TT-t)
   
-  defl <- exp(-TT*TZChw)
+  defl <- exp(-(TT-t)*TZChw)
   
   ps.AAA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 1)
   ps.AA <- proba_survie_i_JLT(N, t, TT, param_JLT, M, D, 2)
