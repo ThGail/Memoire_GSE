@@ -1,7 +1,6 @@
 # Mémoire GSE - Best Estimate
 
-Mémoire de Master 1, Université Paris-Dauphine
-Mengru CHEN - Sina MBAYE - Thibault GAILLARD
+Mémoire de Master 1, Université Paris-Dauphine réalisé par : Mengru CHEN - Sina MBAYE - Thibault GAILLARD
 
 Mise en place d'un générateur de scénarios économiques. Modèles mis en place :
  - Taux sans risque : Modèle Vasicek et Modèle de Hull&White
