@@ -19,7 +19,7 @@ Trois dossiers contiennent différents codes
 Les données sont dans le fichier excel "Input_20210118_18h41m33s" contenant les données fournies par Prim'Act.
 
 L'ensemble des fichiers ont servi à la construction de GSE où les résultats se trouvent dans "Resultat > GSE_resultat".
-Etant donnée que nous avons plusieurs modèles de taux et de crédit, nous avons élaboré 4 versions :
+Etant donné que nous avons plusieurs modèles de taux et de crédit, nous avons élaboré 4 versions :
 - Vasicek / CIR
 - Vasicek / JLT
 - Hull&White / CIR
