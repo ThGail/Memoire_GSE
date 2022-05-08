@@ -1,12 +1,9 @@
 # Mémoire GSE - Best Estimate
 
-Mémoire de Master 1, Université Paris-Dauphine & Prim'Act
+__Mémoire de Master 1, Université Paris-Dauphine & Prim'Act__
 
-Dossier rendu pour le mémoire de M1 du sujet A3,
-
-Sujet : "Générateur de scénarios économiques pour le risque de crédit en assurance"
-
-Réalisé par Mengru CHEN, Thibault GAILLARD, Sina MBAYE
+Dossier rendu pour le mémoire de M1 sur le sujet __"Générateur de scénarios économiques pour le risque de crédit en assurance"__, 
+réalisé par _Mengru CHEN_, _Thibault GAILLARD_ et _Sina MBAYE_.
 
 Mise en place d'un générateur de scénarios économiques. Modèles mis en place :
  - Taux sans risque : Modèle Vasicek et Modèle de Hull&White
