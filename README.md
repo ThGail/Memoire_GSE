@@ -25,6 +25,6 @@ Etant donné que nous avons plusieurs modèles de taux et de crédit, nous avons
 - Hull&White / CIR
 - Hull&White / JLT
 
-ATTENTION !!! Lors de l'exécution, pensez à modifier les chemins d'accès dans TOUS les fichiers.
+Attention : Lors de l'exécution, pensez à modifier les chemins d'accès dans TOUS les fichiers.
 
 Mode d'emploi plus détaillé "Mode d'emploi.txt"
