@@ -27,4 +27,4 @@ Etant donnée que nous avons plusieurs modèles de taux et de crédit, nous avon
 
 ATTENTION !!! Lors de l'exécution, pensez à modifier les chemins d'accès dans TOUS les fichiers.
 
-Mode d'emploi plus détaillé
+Mode d'emploi plus détaillé "Mode d'emploi.txt"
