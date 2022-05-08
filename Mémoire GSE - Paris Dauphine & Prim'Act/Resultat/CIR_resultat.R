@@ -21,6 +21,7 @@ SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
 Maturite10 <- Maturite[1:10]
 Maturite15 <- Maturite[1:15]
 Maturite30 <- Maturite[1:30]
+Maturite50 <- Maturite[1:50]
 
 N = 1000
 
@@ -40,14 +41,13 @@ legend("topright", c("AAA", "AA", "A", "BBB", "BB", "B"),
 # remarque : on trouve pareil avec 
 # plot(colMeans(spread_CIR_sim.T(N,0,Maturite30,paramCIR$AAA,LGD)))
 
-# simulation spread AAA pour une maturité de 30 ans
-tt <- seq(1,30,0.5)[-length(seq(1,30,0.5))]
-plotCIRsurvieAAA <- spread_CIR_sim.t(N,tt,30,paramCIR$AAA,LGD)
-matplot(tt,t(plotCIRsurvieAAA[1:10,]),type="l",
-        main="Scénarios de spread AAA de maturité 30 ans",
-        xlab="Temps",ylab="Spread")
-# plot moyenne spread de maturité 30 ans avec Monte Carlo (sur 1000 simulations)
-lines(tt,colMeans(plotCIRsurvieAAA),type="l",lwd=2,col="red")
+# simulation spread B pour une maturité de 3 ans
+SP <- c()
+for (t in c(0,Maturite50)){SP <- cbind(SP,spread_CIR_sim(N,t,t+3,paramCIR$B,LGD))}
+matplot(t(SP[1:10,]),type="l",
+        main=c("Evolution de spread B de maturité 3 ans sur 50 ans","CIR"),
+        ylab="Spread",xlab="Temps")
+lines(colMeans(SP),col="red",lwd=2)
 
 ### (Test de martingalité CIR) ###################################################
 plot(Maturite,PZCr_CIR_FF(Maturite, paramVas, paramCIR$AAA, LGD)/colMeans(PZCr_CIR_Vas_sim.T(N, 0, Maturite, paramVas, paramCIR$AAA, LGD)),"l",

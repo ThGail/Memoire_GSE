@@ -64,12 +64,12 @@ UB <- c(rep(30,8),rep(20,8),10,rep(30,8))
 #paramJLT = hjkb(param_init,Ecart_JLT,lower=LB,upper=UB)$par # 2.731286e-05
 paramJLT = nlminb(start = param_init,ecart_JLT,lower=LB,upper=UB)$par
 #paramJLT = optim(par=param_init,fn=Ecart_JLT,lower=LB,upper=UB,method="L-BFGS-B")$par
-(listJLT <- list(
+listJLT <- list(
   k = paramJLT[1:8],
   mu = paramJLT[9:16],
   sigma = paramJLT[17],
-  pi0 = paramJLT[18:25]))
+  pi0 = paramJLT[18:25])
 paramJLT[17] = min(sqrt(2*listJLT$k*listJLT$mu)[sqrt(2*listJLT$k*listJLT$mu) > 0])
 # il faut que sigma soit non nul
-(listJLT$sigma <- paramJLT[17])
-
+listJLT$sigma <- paramJLT[17]
+(listJLT)

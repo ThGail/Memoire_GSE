@@ -35,7 +35,7 @@ TZC_Vas_FF_calibrage.T <- Vectorize(TZC_Vas_FF_calibrage,"TT")
 
 # deflateur 
 deflateur_Vas <- function(N,t,TT,param,r0=TauxZC[1]){
-  return(exp(-TT*TZC_Vas_FF_sim(N,t,TT,param,r0)))
+  return(exp(-(TT-t)*TZC_Vas_FF_sim(N,t,TT,param,r0)))
 }
 deflateur_Vas.T <- Vectorize(deflateur_Vas,"TT")
 

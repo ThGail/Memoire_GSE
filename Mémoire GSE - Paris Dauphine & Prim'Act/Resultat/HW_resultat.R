@@ -18,6 +18,7 @@ TauxZC <- as.numeric(sheetDGlo$...2[7:156])
 Maturite10 <- Maturite[1:10]
 Maturite15 <- Maturite[1:15]
 Maturite30 <- Maturite[1:30]
+Maturite50 <- Maturite[1:50]
 
 N = 1000
 
@@ -53,11 +54,12 @@ legend("topright",legend=c("PZC en t=1","PZC en t=0"),
        cex=0.6)
 
 # trajectoire du PZC de maturité 10 ans
-tt <- seq(0,10,0.1)
-PZCT10 <- PZC_HW_sim.t(N,tt,10,paramHW)
-matplot(tt,t(PZCT10[1:10,]),type='l',
+PZCT10 <- c()
+for (t in c(0,Maturite)){PZCT10 <- cbind(PZCT10,PZC_HW_sim(N,t,t+10,paramHW))}
+matplot(t(PZCT10[1:10,]),type='l',
         main = 'Trajectoire prix zéro-coupon de maturité 10 ans',
         xlab = 'Temps', ylab = 'Prix ZC')
-lines(tt,colMeans(PZCT10),type="l",lwd=2,col="red")
+lines(colMeans(PZCT10),type="l",lwd=2,col="red")
+
 
 

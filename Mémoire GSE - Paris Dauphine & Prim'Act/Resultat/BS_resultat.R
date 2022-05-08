@@ -20,19 +20,20 @@ TauxZC <- as.numeric(sheetDGlo$...2[7:156])
 Maturite10 <- Maturite[1:10]
 Maturite15 <- Maturite[1:15]
 Maturite30 <- Maturite[1:30]
+Maturite50 <- Maturite[1:50]
 
 N = 1000; S0 = 1; K = 1
 
 ### Plot du Black and Scholes ##############################################
 # moyenne simulation indice action pour 1000 simulations
-(plotPAaction = PA_BS_FF_sim.t(N,Maturite30,S0,paramVas,paramBS$action))
+(plotPAaction = PA_BS_Vas_FF_sim.t(N,Maturite30,S0,paramVas,paramBS$action))
 matplot(t(plotPAaction[1:10,]),type="l",
         main="Scénarios de l'indice action sur 30 ans",
         xlab="Temps",ylab="indice action")
 lines(colMeans(plotPAaction),type="l",lwd=2,col="red")
 
 # moyenne simulation indice immo pour 1000 simulations
-(plotPAimmo = PA_BS_FF_sim.t(N,Maturite30,S0,paramVas,paramBS$immo))
+(plotPAimmo = PA_BS_Vas_FF_sim.t(N,Maturite30,S0,paramVas,paramBS$immo))
 matplot(t(plotPAimmo[1:10,]),type="l",
         main="Scénarios de l'indice immobilier sur 30 ans",
         xlab="Temps",ylab="indice immobilier")

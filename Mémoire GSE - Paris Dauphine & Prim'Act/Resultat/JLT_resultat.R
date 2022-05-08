@@ -23,6 +23,7 @@ SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
 Maturite10 <- Maturite[1:10]
 Maturite15 <- Maturite[1:15]
 Maturite30 <- Maturite[1:30]
+Maturite50 <- Maturite[1:50]
 
 N = 1000; LGD = 0.3
 
@@ -90,74 +91,136 @@ legend("topleft",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.7)
 
-#simulation de spread AA pour une maturité de 10 ans
-tt <- seq(0,10,0.1)[-length(seq(0,10,0.1))]
-SP <- spread_i_JLT.t(N, tt, 10, paramJLT, M, D, 2, LGD)
-matplot(tt,t(SP[1:10,]),type="l",
+# simulation de spread B pour une maturité de 3 ans
+SP <- c()
+for (t in c(0,Maturite50)){SP <- cbind(SP,spread_i_JLT(N, t, t+3, paramJLT, M, D, 6, LGD))}
+matplot(t(SP[1:10,]),type="l",
+        main=c("Evolution de spread B de maturité 3 ans sur 50 ans","JLT"),
+        ylab="Spread",xlab="Temps")
+lines(colMeans(SP),col="red",lwd=1.5)
+
+# Simulation spread AA de maturité 10 ans
+SP <- c()
+for (t in c(0,Maturite50)){SP <- cbind(SP,spread_i_JLT(N, t, t+10, paramJLT, M, D, 2, LGD))}
+matplot(t(SP[1:10,]),type="l",
         main="Simulation spread sur maturité 10 ans pour AA",
         ylab="Spread", 
-        xlab="Maturité")
-plot(tt,colMeans(SP),'l',col="red",lwd=1.5,
-     main=c("Moyenne de spread actions AA maturité 10 ans", "(sur 1000 simulations)"),
-     xlab="Maturité",
-     ylab="Spread")
+        xlab="Temps")
+lines(colMeans(SP),col="red",lwd=1.5)
+
+# comparaison selon notation pour maturité 5 ans
+SPAAA <- c()#spread_i_JLT(N, 0, 0+5, paramJLT, M, D, 1, LGD)
+for (t in Maturite50){SPAAA <- cbind(SPAAA,spread_i_JLT(N, t, t+5, paramJLT, M, D, 1, LGD))}
+SPAA <- c()#spread_i_JLT(N, 0, 0+5, paramJLT, M, D, 2, LGD)
+for (t in Maturite50){SPAA <- cbind(SPAA,spread_i_JLT(N, t, t+5, paramJLT, M, D, 2, LGD))}
+SPA <- c()#spread_i_JLT(N, 0, 0+5, paramJLT, M, D, 3, LGD)
+for (t in Maturite50){SPA <- cbind(SPA,spread_i_JLT(N, t, t+5, paramJLT, M, D, 3, LGD))}
+SPBBB <- c()#spread_i_JLT(N, 0, 0+5, paramJLT, M, D, 4, LGD)
+for (t in Maturite50){SPBBB <- cbind(SPBBB,spread_i_JLT(N, t, t+5, paramJLT, M, D, 4, LGD))}
+
+plot(colMeans(SPAAA),type="l",ylim=c(-0.0001,0.0055),col="red",xlab="Temps",ylab="Spread",
+     main=c("Evolution des spreads par rating de", "maturité 5 ans sur 50 ans (JLT)"))
+lines(colMeans(SPAA),col="orange")
+lines(colMeans(SPA),col="brown")
+lines(colMeans(SPBBB),col="lightblue")
+legend("topright",legend=c("AAA","AA", "A","BBB"),
+       col=c("red","orange", "brown", "lightblue"),pch=20,
+       cex=0.7)
+
+# comparaison de spread A pour différente maturité 
+SP1 <- c()
+for (t in Maturite50){SP1 <- cbind(SP1,spread_i_JLT(N, t, t+1, paramJLT, M, D, 3, LGD))}
+SP5 <- c()
+for (t in Maturite50){SP5 <- cbind(SP5,spread_i_JLT(N, t, t+5, paramJLT, M, D, 3, LGD))}
+SP10 <- c()
+for (t in Maturite50){SP10 <- cbind(SP10,spread_i_JLT(N, t, t+10, paramJLT, M, D, 3, LGD))}
+SP30 <- c()
+for (t in Maturite50){SP30 <- cbind(SP30,spread_i_JLT(N, t, t+30, paramJLT, M, D, 3, LGD))}
+
+plot(colMeans(SP1),type="l",ylim=c(0,0.005),xlab="Temps",ylab="Spread",
+     main="Evolution du spread A pour différentes maturités (JLT)")
+lines(colMeans(SP5),col="purple")
+lines(colMeans(SP10),col="blue")
+lines(colMeans(SP30),col="lightblue")
+legend("topright",legend=c("maturité 1 an","maturité 5 ans", "maturité 10 ans","maturité 30 ans"),
+       col=c("black","purple", "blue", "lightblue"),pch=20,
+       cex=0.7)
+
+# comparaison de spread B pour différente maturité 
+SP1 <- c()
+for (t in Maturite50){SP1 <- cbind(SP1,spread_i_JLT(N, t, t+1, paramJLT, M, D, 6, LGD))}
+SP5 <- c()
+for (t in Maturite50){SP5 <- cbind(SP5,spread_i_JLT(N, t, t+5, paramJLT, M, D, 6, LGD))}
+SP10 <- c()
+for (t in Maturite50){SP10 <- cbind(SP10,spread_i_JLT(N, t, t+10, paramJLT, M, D, 6, LGD))}
+SP30 <- c()
+for (t in Maturite50){SP30 <- cbind(SP30,spread_i_JLT(N, t, t+30, paramJLT, M, D, 6, LGD))}
+
+plot(colMeans(SP1),type="l",ylim=c(0,0.07),xlab="Temps",ylab="Spread",
+     main="Evolution du spread B pour différentes maturités (JLT)")
+lines(colMeans(SP5),col="purple")
+lines(colMeans(SP10),col="blue")
+lines(colMeans(SP30),col="lightblue")
+legend("topright",legend=c("maturité 1 an","maturité 5 ans", "maturité 10 ans","maturité 30 ans"),
+       col=c("black","purple", "blue", "lightblue"),pch=20,
+       cex=0.7)
 
 ### Test de martingalité sur Cash Flow JLT Vas ###################################################
-plot(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
+plot(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_CF_JLT_Vas_sim.T(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 1, LGD)),
      ylim=c(0.99,1.01),"l",col="red",
      ylab="CashFlow actualisé",
      main=c("Test de martingalité sur CashFlow", "du modèle JLT (avec Vasicek)"))
-lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_Vas_sim(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_CF_JLT_Vas_sim.T(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_CF_JLT_Vas_sim.T(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_CF_JLT_Vas_sim.T(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_CF_JLT_Vas_sim.T(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite,PZCr_i_CF_JLT_Vas_FF(Maturite, paramVas, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_CF_JLT_Vas_sim.T(N=1000, 0, Maturite, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)
 
 ### Test de martingalité sur PZCr avec rating JLT Vas ###################################################
 t = 0.2
-plot(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
+plot(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_JLT_Vas_sim.T(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 1, LGD)),
      ylim=c(0.9,1.1),"l",col="red",
      xlab ="Maturité",
      ylab="PZC risqué actualisé",
      main=c("Test de martingalité sur PZC risqué", "du modèle JLT (avec Vasicek)"))
-lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_JLT_Vas_sim(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_JLT_Vas_sim.T(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_JLT_Vas_sim.T(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_JLT_Vas_sim.T(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_JLT_Vas_sim.T(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite30,PZCr_i_CF_JLT_Vas_FF(Maturite30, paramVas, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_JLT_Vas_sim.T(N=1000, t, Maturite30, paramVas, paramJLT, M, D, 6, LGD)),col="purple")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)
 
 ### Test de martingalité sur Cash Flow JLT HW ###################################################
-plot(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 1, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 1, LGD)),
+plot(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_CF_JLT_HW_sim.T(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 1, LGD)),
      ylim=c(0.99,1.01),"l",col="red",
      ylab="CashFlow actualisé",
      main=c("Test de martingalité sur CashFlow", "du modèle JLT (avec HW)"))
-lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 2, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 3, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 4, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 5, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 6, LGD)/rowMeans(PZCr_i_CF_JLT_HW_sim(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 6, LGD)),col="purple")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_CF_JLT_HW_sim.T(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_CF_JLT_HW_sim.T(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_CF_JLT_HW_sim.T(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_CF_JLT_HW_sim.T(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite,PZCr_i_CF_JLT_HW_FF(Maturite, paramHW, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_CF_JLT_HW_sim.T(N=1000, 0, Maturite, paramHW, paramJLT, M, D, 6, LGD)),col="purple")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)
 
 ### Test de martingalité sur PZCr avec rating JLT HW ###################################################
-t = 0.2
-plot(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 1, LGD)),
+t = 0.1
+plot(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 1, LGD)/colMeans(PZCr_i_JLT_HW_sim.T(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 1, LGD)),
      ylim=c(0.9,1.1),"l",col="red",
      xlab ="Maturité",
      ylab="PZC risqué actualisé",
      main=c("Test de martingalité sur PZC risqué", "du modèle JLT (avec HW)"))
-lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 2, LGD)),col="orange")
-lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 3, LGD)),col="brown")
-lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 4, LGD)),col="lightblue")
-lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 5, LGD)),col="blue")
-lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_JLT_HW_sim(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 6, LGD)),col="purple")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 2, LGD)/colMeans(PZCr_i_JLT_HW_sim.T(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 2, LGD)),col="orange")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 3, LGD)/colMeans(PZCr_i_JLT_HW_sim.T(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 3, LGD)),col="brown")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 4, LGD)/colMeans(PZCr_i_JLT_HW_sim.T(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 4, LGD)),col="lightblue")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 5, LGD)/colMeans(PZCr_i_JLT_HW_sim.T(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 5, LGD)),col="blue")
+lines(Maturite30,PZCr_i_CF_JLT_HW_FF(Maturite30, paramHW, paramJLT, M, D, 6, LGD)/colMeans(PZCr_i_JLT_HW_sim.T(N=1000, t, Maturite30, paramHW, paramJLT, M, D, 6, LGD)),col="purple")
 legend("topright",legend=c("AAA","AA", "A","BBB","BB","B"),
        col=c("red","orange", "brown", "lightblue", "blue", "purple"),pch=20,
        cex=0.6)

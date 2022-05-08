@@ -1,6 +1,6 @@
 # définition des fonctions utiles du modèle Black&Scholes
 
-# simulation prix actif en version Wasicek
+# simulation prix actif en version Vasicek
 PA_BS_Vas_FF_sim <- function(N, t, S0, param_Vas, param_actif, r0=TauxZC[1]){
   nb_mat <- length(t)
   mat <- t(matrix(rep(t,N),nrow=nb_mat))

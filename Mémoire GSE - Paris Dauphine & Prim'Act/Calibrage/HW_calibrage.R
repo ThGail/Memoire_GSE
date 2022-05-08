@@ -16,8 +16,8 @@ source(paste(chemin_fct,"\\HW_fonction.R",sep=""))
 sheetDGlo <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 1)
 sheetCali <- read_excel("Input_20210118_18h41m33s.xlsm", sheet = 3)
 
-Maturite <- as.numeric(sheetDGlo$`Courbe des taux ZC`[3:156])
-TauxZC <- as.numeric(sheetDGlo$...2[3:156])
+Maturite <- as.numeric(sheetDGlo$`Courbe des taux ZC`[7:156])
+TauxZC <- as.numeric(sheetDGlo$...2[7:156])
 PrixZC <- exp(-Maturite*TauxZC)
 PrixCaps <- as.numeric(sheetCali$...5[3:22])
 
@@ -35,7 +35,7 @@ dTfI_fct <- splinefun(x = Maturite, y = dTfI, method = "natural")
 
 param_init <- c(0.5,0.5)
 LB = c(1e-16,1e-16)
-UB = c(1,1) # lequel choisir ? impact sur l'erreur
+UB = c(1,1)
 
 (paramHW <- hjkb(param_init,ecart_HW_cap,lower=LB,upper=UB)$par)
 

@@ -68,8 +68,7 @@ PZCr_CIR_FF <- function(TT, param_Vas, param_CIR, LGD){
 # simulation zéro-coupon risqué
 PZCr_CIR_Vas_sim <- function(N,t,TT,param_Vas,param_CIR,LGD){
   surv <- survie_CIR_sim(N, t, TT, param_CIR)
-  TZC <- TZC_Vas_FF_sim(N, t, TT, param_Vas)
-  return(exp(-TT*t(TZC))*t(surv+(1-LGD)*(1-surv)))
+  return(PZC_Vas_FF_sim(N,t,TT,param_Vas)*(surv+(1-LGD)*(1-surv)))
 }
 # pour une maturité T fixé
 PZCr_CIR_Vas_sim.t <- Vectorize(PZCr_CIR_Vas_sim,"t")
@@ -78,8 +77,7 @@ PZCr_CIR_Vas_sim.T <- Vectorize(PZCr_CIR_Vas_sim,"TT")
 
 PZCr_CIR_HW_sim <- function(N,t,TT,param_HW,param_CIR,LGD){
   surv <- survie_CIR_sim(N, t, TT, param_CIR)
-  TZC <- TZC_HW_sim(N, t, TT, param_HW)
-  return(exp(-TT*t(TZC))*t(surv+(1-LGD)*(1-surv)))
+  return(PZC_HW_sim(N,t,TT,param_HW)*(surv+(1-LGD)*(1-surv)))
 }
 PZCr_CIR_HW_sim.T <- Vectorize(PZCr_CIR_HW_sim,"TT")
 

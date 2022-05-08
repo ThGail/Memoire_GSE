@@ -26,6 +26,7 @@ SpreadMarket  <- as.numeric(sheetDGlo$...15[3:9])
 Maturite10 <- Maturite[1:10]
 Maturite15 <- Maturite[1:15]
 Maturite30 <- Maturite[1:30]
+Maturite50 <- Maturite[1:50]
 
 ### Parametres des modèles #####################################
 # Vasicek
@@ -50,7 +51,7 @@ N = 1000; TT = 50; LGD = 0.3
 
 
 
-#### Some plot GSE Vas CIR dans le cas maturite T=50 ########################################
+#### Some plot GSE Vas CIR ########################################
 Tvas.test <- c()
 action.test <- c()
 immo.test <- c()
@@ -59,7 +60,7 @@ PZCrAAAt1sc.test <- c()
 PZCrAAAT50.test <- c()
 
 for (t in (1:TT)){
-  GSET50.test <- GSE_Vas_CIR(N, t, TT, paramVas, paramBS$action, paramBS$immo, paramCIR, L, LGD)
+  GSET50.test <- GSE_Vas_CIR(N, t, t+10, paramVas, paramBS$action, paramBS$immo, paramCIR, L, LGD)
   GSEt1.test <- GSE_Vas_CIR(N, 1, t, paramVas, paramBS$action, paramBS$immo, paramCIR, L, LGD)
   Tvas.test <- cbind(Tvas.test, GSET50.test$TZC_Vas)
   action.test <- cbind(action.test, GSET50.test$ind_action)
@@ -70,25 +71,30 @@ for (t in (1:TT)){
 }
 
 # plot du taux sans risque Vasicek avec matrice de correlation
-matplot(t(Tvas.test[1:10,]), type='l', main="Simulation du taux zéro-coupon Vasicek", ylab='Taux ZC', xlab='Maturité')
+matplot(t(Tvas.test[1:10,]), type='l', main="Simulation du taux zéro-coupon Vasicek", ylab='Taux ZC', xlab='Temps')
 lines(colMeans(Tvas.test),  type = "l", col="red",lwd=2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
 
 # plot de l'indice action :
-matplot(t(action.test[1:10,]), type='l',  main="Evolution de la performance action de maturité 50 ans", ylab='Indice action', xlab='Temps')
+matplot(t(action.test[1:20,]), type='l',  main="Evolution de la performance action sur 50 ans", ylab='Indice action', xlab='Temps')
 lines(colMeans(action.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
 
 # plot de l'indice immobilier :
-matplot(t(immo.test[1:10,]), type='l', main="Evolution de la performance immobilière de maturité 50 ans", ylab='Indice immobilier', xlab='Temps')
+matplot(t(immo.test[1:20,]), type='l', main="Evolution de la performance immobilière sur 50 ans", ylab='Indice immobilier', xlab='Temps')
 lines(colMeans(immo.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
+
+# plot PZCr AAA de maturite 10 ans
+matplot(t(PZCrAAAT50.test[1:10,]), type='l',
+        main=c("Evolution PZCr AAA de maturité 10 ans","Vasicek CIR"),xlab="Temps",ylab="PZCr")
+lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 # plot PZCr AAA au temps t=1
 matplot(t(PZCrAAAt1.test[1:10,]), type='l',
@@ -99,27 +105,27 @@ legend("bottomleft", legend=c("PZC risqué AAA avec corrélation des taux (issu GS
        col=c("red","black"),pch=20,
        cex=0.7)
 
-# plot PZCr AAA de maturite 50 ans
-matplot(t(PZCrAAAT50.test[1:10,]), type='l',
-        main=c("Evolution PZCr AAA de maturité 50 ans","Vasicek CIR"),xlab="Temps",ylab="PZCr")
-lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 
 
 
-
-#### Some plot GSE Vas JLT dans le cas maturite T=50 ########################################
+#### Some plot GSE Vas JLT ########################################
 PZCrAAAt1.test <- c()
 PZCrAAAt1sc.test <- c()
 PZCrAAAT50.test <- c()
 
 for (t in (1:TT)){
-  GSET50.test <- GSE_Vas_JLT(N, t, TT, paramVas, paramBS$action, paramBS$immo, paramJLT, L, LGD)
+  GSET50.test <- GSE_Vas_JLT(N, t, t+10, paramVas, paramBS$action, paramBS$immo, paramJLT, L, LGD)
   GSEt1.test <- GSE_Vas_JLT(N, 1, t, paramVas, paramBS$action, paramBS$immo, paramJLT, L, LGD)
   PZCrAAAT50.test <- cbind(PZCrAAAT50.test, GSET50.test$PZCr_AAA)
   PZCrAAAt1.test <- cbind(PZCrAAAt1.test, GSEt1.test$PZCr_AAA)
   PZCrAAAt1sc.test <- c(PZCrAAAt1sc.test, mean(PZCr_i_JLT_Vas_sim(N, 1, t, paramVas, paramJLT, M, D, 1, LGD)))
 }
+
+# plot PZCr AAA de maturite 10 ans
+matplot(t(PZCrAAAT50.test[1:10,]), type='l',
+        main=c("Evolution PZCr AAA de maturité 10 ans","Vasicek JLT"),xlab="Temps",ylab="PZCr")
+lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 # plot PZCr AAA au temps t=1
 matplot(t(PZCrAAAt1.test[1:10,]), type='l',
@@ -130,16 +136,12 @@ legend("bottomleft", legend=c("PZC risqué AAA avec corrélation des taux (issu GS
        col=c("red","black"),pch=20,
        cex=0.7)
 
-# plot PZCr AAA de maturite 50 ans
-matplot(t(PZCrAAAT50.test[1:10,]), type='l',
-        main=c("Evolution PZCr AAA de maturité 50 ans","Vasicek JLT"),xlab="Temps",ylab="PZCr")
-lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 
 
 
 
-#### Some plot GSE HW CIR dans le cas maturite T=50 ########################################
+#### Some plot GSE HW CIR  ########################################
 Thw.test <- c()
 action.test <- c()
 immo.test <- c()
@@ -148,7 +150,7 @@ PZCrAAAt1sc.test <- c()
 PZCrAAAT50.test <- c()
 
 for (t in (1:TT)){
-  GSET50.test <- GSE_HW_CIR(N, t, TT, paramHW, paramBS$action, paramBS$immo, paramCIR, L, LGD)
+  GSET50.test <- GSE_HW_CIR(N, t, t+10, paramHW, paramBS$action, paramBS$immo, paramCIR, L, LGD)
   GSEt1.test <- GSE_HW_CIR(N, 1, t, paramHW, paramBS$action, paramBS$immo, paramCIR, L, LGD)
   Thw.test <- cbind(Thw.test, GSET50.test$TZC_HW)
   action.test <- cbind(action.test, GSET50.test$ind_action)
@@ -166,18 +168,23 @@ legend("topleft", legend=c("Moyenne des simulations"),
        cex=0.7)
 
 # plot de l'indice action :
-matplot(t(action.test[30:40,]), type='l',  main="Evolution de la performance action de maturité 50 ans", ylab='Indice action', xlab='Temps')
+matplot(t(action.test[1:20,]), ylim=c(0,150), type='l',  main="Evolution de la performance action sur 50 ans", ylab='Indice action', xlab='Temps')
 lines(colMeans(action.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
 
 # plot de l'indice immobilier :
-matplot(t(immo.test[1:10,]), type='l', main="Evolution de la performance immobilière de maturité 50 ans", ylab='Indice immobilier', xlab='Temps')
+matplot(t(immo.test[1:20,]), ylim=c(0,150), type='l', main="Evolution de la performance immobilière sur 50 ans", ylab='Indice immobilier', xlab='Temps')
 lines(colMeans(immo.test), type = 'l', col="red", lwd = 2)
 legend("topleft", legend=c("Moyenne des simulations"),
        col=c("red"),pch=20,
        cex=0.7)
+
+# plot PZCr AAA de maturite 10 ans
+matplot(t(PZCrAAAT50.test[1:10,]), type='l',
+        main=c("Evolution PZCr AAA de maturité 10 ans","HW CIR"),xlab="Temps",ylab="PZCr")
+lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 # plot PZCr AAA au temps t=1
 matplot(t(PZCrAAAt1.test[1:10,]), type='l',
@@ -188,27 +195,27 @@ legend("bottomleft", legend=c("PZC risqué AAA avec corrélation des taux (issu GS
        col=c("red","black"),pch=20,
        cex=0.7)
 
-# plot PZCr AAA de maturite 50 ans
-matplot(t(PZCrAAAT50.test[1:10,]), type='l',
-        main=c("Evolution PZCr AAA de maturité 50 ans","HW CIR"),xlab="Temps",ylab="PZCr")
-lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 
 
 
-
-#### Some plot GSE HW JLT dans le cas maturite T=50 ########################################
+#### Some plot GSE HW JLT ########################################
 PZCrAAAt1.test <- c()
 PZCrAAAt1sc.test <- c()
 PZCrAAAT50.test <- c()
 
 for (t in (1:TT)){
-  GSET50.test <- GSE_HW_JLT(N, t, TT, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
+  GSET50.test <- GSE_HW_JLT(N, t, t+10, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
   GSEt1.test <- GSE_HW_JLT(N, 1, t, paramHW, paramBS$action, paramBS$immo, paramJLT, L, LGD)
   PZCrAAAT50.test <- cbind(PZCrAAAT50.test, GSET50.test$PZCr_AAA)
   PZCrAAAt1.test <- cbind(PZCrAAAt1.test, GSEt1.test$PZCr_AAA)
   PZCrAAAt1sc.test <- c(PZCrAAAt1sc.test, mean(PZCr_i_JLT_HW_sim(N, 1, t, paramHW, paramJLT, M, D, 1, LGD)))
 }
+
+# plot PZCr AAA de maturite 10 ans
+matplot(t(PZCrAAAT50.test[1:10,]), type='l',
+        main=c("Evolution PZCr AAA de maturité 10 ans","HW JLT"),xlab="Temps",ylab="PZCr")
+lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 # plot PZCr AAA au temps t=1
 matplot(t(PZCrAAAt1.test[1:10,]), type='l',
@@ -219,9 +226,5 @@ legend("bottomleft", legend=c("PZC risqué AAA avec corrélation des taux (issu GS
        col=c("red","black"),pch=20,
        cex=0.7)
 
-# plot PZCr AAA de maturite 50 ans
-matplot(t(PZCrAAAT50.test[1:10,]), type='l',
-        main=c("Evolution PZCr AAA de maturité 50 ans","HW JLT"),xlab="Temps",ylab="PZCr")
-lines(colMeans(PZCrAAAT50.test),  type = "l", col="red",lwd=2)
 
 
