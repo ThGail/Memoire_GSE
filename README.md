@@ -2,8 +2,8 @@
 
 Mémoire de Master 1, Université Paris-Dauphine & Prim'Act
 
-Dossier rendu pour le mémoire de M1 du sujet A3,
-Sujet : "Générateur de scénarios économiques pour le risque de crédit en assurance"
+Dossier rendu pour le mémoire de M1 du sujet A3,\\
+Sujet : "Générateur de scénarios économiques pour le risque de crédit en assurance"\\
 Réalisé par Mengru CHEN, Thibault GAILLARD, Sina MBAYE
 
 Mise en place d'un générateur de scénarios économiques. Modèles mis en place :
